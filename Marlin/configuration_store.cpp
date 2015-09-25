@@ -754,7 +754,7 @@ void Config_PrintSettings(bool forReplay) {
             SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, i));
             SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, i)));
             SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, i)));
-            SERIAL_ECHO(" Max_PID ", (unsigned long)PID_PARAM(Km, i));
+            SERIAL_ECHOPAIR(" Max_PID ", (unsigned long)PID_PARAM(Km, i));
             #ifdef PID_ADD_EXTRUSION_RATE
               SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, i));
             #endif      

@@ -5003,20 +5003,11 @@ inline void gcode_M503() {
  * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
  */
 inline void gcode_M907() {
-  #if HAS_DIGIPOTSS
+  #if HAS_DIGIPOTSS || MOTOR_CURRENT_PWM_X_PIN
     for (int i=0;i<NUM_AXIS;i++)
       if (code_seen(axis_codes[i])) digipot_current(i, code_value());
     if (code_seen('B')) digipot_current(4, code_value());
     if (code_seen('S')) for (int i=0; i<=4; i++) digipot_current(i, code_value());
-  #endif
-  #ifdef MOTOR_CURRENT_PWM_XY_PIN
-    if (code_seen('X')) digipot_current(0, code_value());
-  #endif
-  #ifdef MOTOR_CURRENT_PWM_Z_PIN
-    if (code_seen('Z')) digipot_current(1, code_value());
-  #endif
-  #ifdef MOTOR_CURRENT_PWM_E_PIN
-    if (code_seen('E')) digipot_current(2, code_value());
   #endif
   #ifdef DIGIPOT_I2C
     // this one uses actual amps in floating point
@@ -5047,25 +5038,29 @@ inline void gcode_M907() {
     if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value());
     for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
     if(code_seen('B')) microstep_mode(4,code_value());
-    microstep_readings();
+    //microstep_readings();
   }
 
   /**
-   * M351: Toggle MS1 MS2 pins directly with axis codes X Y Z E B
-   *       S# determines MS1 or MS2, X# sets the pin high/low.
+   * M351: Toggle MS3 MS2 MS1 pins directly with axis codes X Y Z E B
+   *       S# determines MS#, X# sets the pin high/low for that driver.
    */
   inline void gcode_M351() {
     if (code_seen('S')) switch(code_value_short()) {
       case 1:
-        for(int i=0;i<NUM_AXIS;i++) if (code_seen(axis_codes[i])) microstep_ms(i, code_value(), -1);
-        if (code_seen('B')) microstep_ms(4, code_value(), -1);
+        for(int i=0;i<NUM_AXIS;i++) if (code_seen(axis_codes[i])) microstep_ms(i, -1, -1, code_value());
+        if (code_seen('B')) microstep_ms(4, -1, -1, code_value());
         break;
       case 2:
-        for(int i=0;i<NUM_AXIS;i++) if (code_seen(axis_codes[i])) microstep_ms(i, -1, code_value());
-        if (code_seen('B')) microstep_ms(4, -1, code_value());
+        for(int i=0;i<NUM_AXIS;i++) if (code_seen(axis_codes[i])) microstep_ms(i, -1, code_value(), -1);
+        if (code_seen('B')) microstep_ms(4, -1, code_value(), -1);
+        break;
+     case 3:
+        for(int i=0;i<NUM_AXIS;i++) if (code_seen(axis_codes[i])) microstep_ms(i, code_value(), -1, -1);
+        if (code_seen('B')) microstep_ms(4, code_value(), -1, -1);
         break;
     }
-    microstep_readings();
+    //microstep_readings();
   }
 
 #endif // HAS_MICROSTEPS

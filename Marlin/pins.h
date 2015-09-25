@@ -26,6 +26,8 @@
   #include "pins_RAMPS_FD.h"
 #elif MB(RAMPS4DUE)
   #include "pins_RAMPS4DUE.h"
+#elif MB(AMBIT)
+  #include "pins_AMBIT.h"
 #else
   #error Unknown MOTHERBOARD value set in Configuration.h
 #endif
@@ -35,6 +37,7 @@
 #define _E1_PINS
 #define _E2_PINS
 #define _E3_PINS
+
 
 #if EXTRUDERS > 1
   #undef _E1_PINS
@@ -48,6 +51,7 @@
     #endif
   #endif
 #endif
+
 
 #ifdef X_STOP_PIN
   #if X_HOME_DIR < 0

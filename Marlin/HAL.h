@@ -96,11 +96,19 @@ unsigned char eeprom_read_byte(unsigned char *pos);
 
 
 // timers
-#define STEP_TIMER_NUM 2
-#define STEP_TIMER_COUNTER TC0
-#define STEP_TIMER_CHANNEL 2
-#define STEP_TIMER_IRQN TC2_IRQn
-#define HAL_STEP_TIMER_ISR 	void TC2_Handler()
+#if MOTHERBOARD == BOARD_AMBIT //Change stepper timer number because it conflicts with Ambit using pin PA6 (TIOB2) to create voltage reference for Y Motor driver.
+ #define STEP_TIMER_NUM 5
+ #define STEP_TIMER_COUNTER TC1
+ #define STEP_TIMER_CHANNEL 2
+ #define STEP_TIMER_IRQN TC5_IRQn
+ #define HAL_STEP_TIMER_ISR 	void TC5_Handler()
+#else
+ #define STEP_TIMER_NUM 2
+ #define STEP_TIMER_COUNTER TC0
+ #define STEP_TIMER_CHANNEL 2
+ #define STEP_TIMER_IRQN TC2_IRQn
+ #define HAL_STEP_TIMER_ISR 	void TC2_Handler()
+#endif
 
 #define TEMP_TIMER_NUM 3
 #define TEMP_TIMER_COUNTER TC1

@@ -79,8 +79,8 @@ static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_PROB
   bool abort_on_endstop_hit = false;
 #endif
 
-#ifdef MOTOR_CURRENT_PWM_XY_PIN
-  int motor_current_setting[3] = DEFAULT_PWM_MOTOR_CURRENT;
+#ifdef DEFAULT_PWM_MOTOR_CURRENT
+  int motor_current_setting[] = DEFAULT_PWM_MOTOR_CURRENT;
 #endif
 
 #if HAS_X_MIN
@@ -597,6 +597,10 @@ HAL_STEP_TIMER_ISR {
       #endif
 
       #define STEP_END(axis, AXIS) _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0)
+
+      #if MOTHERBOARD == BOARD_AMBIT // DRV8825 Pulse duration, STEP high = 1.9 uS minimum
+      _delay_us(1U);
+      #endif
 
       STEP_END(x, X);
       STEP_END(y, Y);
@@ -1124,6 +1128,17 @@ void digipot_init() {
     digipot_current(2, motor_current_setting[2]);
     //Set timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
     TCCR5B = (TCCR5B & ~(_BV(CS50) | _BV(CS51) | _BV(CS52))) | _BV(CS50);
+  #elif MOTOR_CURRENT_PWM_X_PIN //BOARD_AMBIT
+    pinMode(MOTOR_CURRENT_PWM_X_PIN, OUTPUT);
+    pinMode(MOTOR_CURRENT_PWM_Y_PIN, OUTPUT);
+    pinMode(MOTOR_CURRENT_PWM_Z_PIN, OUTPUT);
+    pinMode(MOTOR_CURRENT_PWM_E0_PIN, OUTPUT);
+    pinMode(MOTOR_CURRENT_PWM_E1_PIN, OUTPUT);
+    digipot_current(0, motor_current_setting[0]);
+    digipot_current(1, motor_current_setting[1]);
+    digipot_current(2, motor_current_setting[2]);
+    digipot_current(3, motor_current_setting[3]);
+    digipot_current(4, motor_current_setting[4]);
   #endif
 }
 
@@ -1139,47 +1154,72 @@ void digipot_current(uint8_t driver, int current) {
       case 2: analogWrite(MOTOR_CURRENT_PWM_E_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
     }
   #endif
+  #ifdef MOTOR_CURRENT_PWM_X_PIN
+    switch(driver) {
+      case 0: analogWrite(MOTOR_CURRENT_PWM_X_PIN,  255L * current / MOTOR_CURRENT_PWM_RANGE); break;
+      case 1: analogWrite(MOTOR_CURRENT_PWM_Y_PIN,  255L * current / MOTOR_CURRENT_PWM_RANGE); break;
+      case 2: analogWrite(MOTOR_CURRENT_PWM_Z_PIN,  255L * current / MOTOR_CURRENT_PWM_RANGE); break;
+      case 3: analogWrite(MOTOR_CURRENT_PWM_E0_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
+      case 4: analogWrite(MOTOR_CURRENT_PWM_E1_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
+    }
+  #endif
 }
 
 void microstep_init() {
   #if HAS_MICROSTEPS_E1
     pinMode(E1_MS1_PIN,OUTPUT);
     pinMode(E1_MS2_PIN,OUTPUT);
+    pinMode(E1_MS3_PIN,OUTPUT);
   #endif
 
   #if HAS_MICROSTEPS
     pinMode(X_MS1_PIN,OUTPUT);
     pinMode(X_MS2_PIN,OUTPUT);
+    pinMode(X_MS3_PIN,OUTPUT);
     pinMode(Y_MS1_PIN,OUTPUT);
     pinMode(Y_MS2_PIN,OUTPUT);
+    pinMode(Y_MS3_PIN,OUTPUT);
     pinMode(Z_MS1_PIN,OUTPUT);
     pinMode(Z_MS2_PIN,OUTPUT);
+    pinMode(Z_MS3_PIN,OUTPUT);
     pinMode(E0_MS1_PIN,OUTPUT);
     pinMode(E0_MS2_PIN,OUTPUT);
+    pinMode(E0_MS3_PIN,OUTPUT);
     const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < sizeof(microstep_modes) / sizeof(microstep_modes[0]); i++)
       microstep_mode(i, microstep_modes[i]);
   #endif
 }
 
-void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2) {
-  if (ms1 >= 0) switch(driver) {
-    case 0: digitalWrite(X_MS1_PIN, ms1); break;
-    case 1: digitalWrite(Y_MS1_PIN, ms1); break;
-    case 2: digitalWrite(Z_MS1_PIN, ms1); break;
-    case 3: digitalWrite(E0_MS1_PIN, ms1); break;
-    #if HAS_MICROSTEPS_E1
-      case 4: digitalWrite(E1_MS1_PIN, ms1); break;
-    #endif
-  }
-  if (ms2 >= 0) switch(driver) {
-    case 0: digitalWrite(X_MS2_PIN, ms2); break;
-    case 1: digitalWrite(Y_MS2_PIN, ms2); break;
-    case 2: digitalWrite(Z_MS2_PIN, ms2); break;
-    case 3: digitalWrite(E0_MS2_PIN, ms2); break;
-    #if defined(E1_MS2_PIN) && E1_MS2_PIN >= 0
-      case 4: digitalWrite(E1_MS2_PIN, ms2); break;
-    #endif
+
+void microstep_ms(uint8_t driver, int8_t ms3, int8_t ms2, int8_t ms1) 
+{
+  switch(driver) {
+    case 0: 
+      if(ms1 > -1) digitalWrite(X_MS1_PIN, ms1); 
+      if(ms2 > -1) digitalWrite(X_MS2_PIN, ms2); 
+      if(ms3 > -1) digitalWrite(X_MS3_PIN, ms3); 
+      break;
+    case 1: 
+      if(ms1 > -1) digitalWrite(Y_MS1_PIN, ms1); 
+      if(ms2 > -1) digitalWrite(Y_MS2_PIN, ms2); 
+      if(ms3 > -1) digitalWrite(Y_MS3_PIN, ms3); 
+      break;
+    case 2:
+      if(ms1 > -1) digitalWrite(Z_MS1_PIN, ms1);
+      if(ms2 > -1) digitalWrite(Z_MS2_PIN, ms2);
+      if(ms3 > -1) digitalWrite(Z_MS3_PIN, ms3);
+      break;
+    case 3: 
+      if(ms1 > -1) digitalWrite(E0_MS1_PIN, ms1);
+      if(ms2 > -1) digitalWrite(E0_MS2_PIN, ms2); 
+      if(ms3 > -1) digitalWrite(E0_MS3_PIN, ms3); 
+      break;
+    case 4: 
+      if(ms1 > -1) digitalWrite(E1_MS1_PIN, ms1);
+      if(ms2 > -1) digitalWrite(E1_MS2_PIN, ms2);
+      if(ms3 > -1) digitalWrite(E1_MS3_PIN, ms3);
+      break;
   }
 }
 
@@ -1190,28 +1230,22 @@ void microstep_mode(uint8_t driver, uint8_t stepping_mode) {
     case 4: microstep_ms(driver,MICROSTEP4); break;
     case 8: microstep_ms(driver,MICROSTEP8); break;
     case 16: microstep_ms(driver,MICROSTEP16); break;
+    case 32: microstep_ms(driver,MICROSTEP32); break;
   }
 }
 
 void microstep_readings() {
-  SERIAL_PROTOCOLPGM("MS1,MS2 Pins\n");
-  SERIAL_PROTOCOLPGM("X: ");
-  SERIAL_PROTOCOL(digitalRead(X_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(X_MS2_PIN));
-  SERIAL_PROTOCOLPGM("Y: ");
-  SERIAL_PROTOCOL(digitalRead(Y_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(Y_MS2_PIN));
-  SERIAL_PROTOCOLPGM("Z: ");
-  SERIAL_PROTOCOL(digitalRead(Z_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(Z_MS2_PIN));
-  SERIAL_PROTOCOLPGM("E0: ");
-  SERIAL_PROTOCOL(digitalRead(E0_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(E0_MS2_PIN));
-  #if HAS_MICROSTEPS_E1
-    SERIAL_PROTOCOLPGM("E1: ");
-    SERIAL_PROTOCOL(digitalRead(E1_MS1_PIN));
-    SERIAL_PROTOCOLLN(digitalRead(E1_MS2_PIN));
-  #endif
+  const uint8_t microstep_modes[] = MICROSTEP_MODES;
+
+  SERIAL_PROTOCOLPGM("Microstep Modes:");
+
+  for (uint16_t i = 0; i < sizeof(microstep_modes) / sizeof(microstep_modes[0]); i++)
+  {
+    SERIAL_PROTOCOLPGM(" ");
+    SERIAL_PROTOCOL(microstep_modes[i]);
+  }
+  
+  SERIAL_PROTOCOLLN("");
 }
 
 #ifdef Z_DUAL_ENDSTOPS

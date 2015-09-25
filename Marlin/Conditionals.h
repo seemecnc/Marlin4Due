@@ -309,13 +309,14 @@
     #define DOUBLE_STEP_FREQUENCY 120000  //96kHz is close to maximum for an Arduino Due
   #endif
 
-  // MS1 MS2 Stepper Driver Microstepping mode table
-  #define MICROSTEP1 LOW,LOW
-  #define MICROSTEP2 HIGH,LOW
-  #define MICROSTEP4 LOW,HIGH
-  #define MICROSTEP8 HIGH,HIGH
-  #define MICROSTEP16 HIGH,HIGH
-
+  // MS3 MS2 MS1 Stepper Driver Microstepping mode table
+    #define MICROSTEP1 LOW,LOW,LOW
+    #define MICROSTEP2 LOW,LOW,HIGH
+    #define MICROSTEP4 LOW,HIGH,LOW
+    #define MICROSTEP8 LOW,HIGH,HIGH
+    #define MICROSTEP16 HIGH,LOW,LOW
+    #define MICROSTEP32 HIGH,LOW,HIGH
+    
   /**
    * Advance calculated values
    */
