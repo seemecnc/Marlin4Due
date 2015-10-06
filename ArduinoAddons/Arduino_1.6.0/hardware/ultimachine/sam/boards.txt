@@ -1,0 +1,23 @@
+ambit.name=Ambit
+#ambit.vid.0=0x2341
+#ambit.pid.0=0x003e
+ambit.upload.tool=bossac
+ambit.upload.protocol=sam-ba
+ambit.upload.maximum_size=524288
+ambit.upload.use_1200bps_touch=false
+ambit.upload.wait_for_upload_port=false
+ambit.upload.native_usb=true
+ambit.build.mcu=cortex-m3
+ambit.build.f_cpu=84000000L
+ambit.build.usb_product="Ambit"
+ambit.build.usb_manufacturer="UltiMachine"
+ambit.build.board=SAM_AMBIT
+ambit.build.core=arduino
+ambit.build.extra_flags=-D__SAM3X8E__ -mthumb {build.usb_flags}
+ambit.build.ldscript=linker_scripts/gcc/flash.ld
+ambit.build.variant=ambit
+ambit.build.variant_system_lib=libsam_sam3x8e_gcc_rel.a
+ambit.build.vid=0x27b1
+# Ambit PID will be moved to 0x0002 after testing
+ambit.build.pid=0x0001
+#ambit.build.pid=0x0002
