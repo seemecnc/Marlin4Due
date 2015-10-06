@@ -1,21 +1,25 @@
-# Marlin4Due Firmware for AMBIT
+# Marlin4Due 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
-### Modified for AMBIT (Experimental)
-This firmware is an experimental fork of Marlin4Due with the necessary modifications to run UltiMachine's new AMBIT 3d controller. 
+### Story about Marlin 32bit
+Some time ago bobc started with this port. After some time sadly he stopped with the development. So I started to take his work and try to make some small modifications. After a couple of weeks I found the most importent things which speed up my new fork. Thanks to bobc for this great work! I'm not a professional programmer and without bobc I couldn't do that.
 
-### Instructions
-Download Arduino 1.6.0 and then install the ArduinoAddons for Arduino_1.6.0.
+Also a big thanks to all Marlin8bit-developers. Keep on working.
 
-### Original Marlin4Due Readme
-  * [Marlin4Due Readme](/Documentation/Marlin4Due.md)
+A big thanks to Repetier! We've talked a lot in the last weeks.
+
+*Wurstnase*
 
 ### This is an experimental repository! You should never leave your printer alone.
 
+### New features are:
+* Steprates up to 400kHz
+* First try of Deadtime-Control for heater
+ 
 ### known issues:
 * watchdog doesn't work
 * advanced extruder not implemented
-* some drivers are too slow, i'm working on a solution [FIXED FOR AMBIT]
+* some drivers are too slow, i'm working on a solution
 
 ---
 # Marlin 3D Printer Firmware
