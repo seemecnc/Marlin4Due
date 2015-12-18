@@ -17,7 +17,9 @@ ambit.build.extra_flags=-D__SAM3X8E__ -mthumb {build.usb_flags}
 ambit.build.ldscript=linker_scripts/gcc/flash.ld
 ambit.build.variant=ambit
 ambit.build.variant_system_lib=libsam_sam3x8e_gcc_rel.a
-ambit.build.vid=0x27b1
+#ambit.build.vid=0x27b1
 # Ambit PID will be moved to 0x0002 after testing
-ambit.build.pid=0x0001
+#ambit.build.pid=0x0001
 #ambit.build.pid=0x0002
+ambit.build.vid=0x2341
+ambit.build.pid=0x003e
