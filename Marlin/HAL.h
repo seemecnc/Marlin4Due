@@ -149,6 +149,13 @@ void tone(uint8_t pin, int frequency);
 void noTone(uint8_t pin);
 //void tone(uint8_t pin, int frequency, long duration);
 
+
+uint8_t spiflash_busy();
+uint8_t spiflash_read_byte(long address);
+void spiflash_erase(long address);
+void spiflash_write_byte(long address, uint8_t value);
+void spiflash_init();
+
 // --------------------------------------------------------------------------
 //
 // --------------------------------------------------------------------------

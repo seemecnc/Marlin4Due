@@ -102,10 +102,18 @@
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
   while(size--) {
-    eeprom_write_byte((unsigned char*)pos, *value);
+    spiflash_write_byte((long)pos, *value);
+    //eeprom_write_byte((unsigned char*)pos, *value);
     _delay_ms(2);
-    c = eeprom_read_byte((unsigned char*)pos);
+    //c = eeprom_read_byte((unsigned char*)pos);
+    c = spiflash_read_byte( (long)pos );
     if (c != *value) {
+      SerialUSB.print(PSTR("pos: "));
+      SerialUSB.print(pos);
+      SerialUSB.print(PSTR("  value: "));
+      SerialUSB.print(*value);
+      SerialUSB.print(PSTR("  c: "));
+      SerialUSB.println(c);
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
     }
@@ -115,13 +123,20 @@ void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
 }
 void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
   do {
-    *value = eeprom_read_byte((unsigned char*)pos);
+    //SerialUSB.print("readbyte: ");
+    *value = spiflash_read_byte((long)pos);
+    //SerialUSB.print(*value);
+    //SerialUSB.print("  pos: ");
+    //SerialUSB.print(pos);
+    //*value = eeprom_read_byte((unsigned char*)pos);
     pos++;
     value++;
   } while (--size);
 }
+
 #define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
 #define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
+
 
 /**
  * Store Configuration Settings - M500
@@ -134,10 +149,13 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
 #ifdef EEPROM_SETTINGS
 
 void Config_StoreSettings()  {
+  spiflash_init();
   float dummy = 0.0f;
   char ver[4] = "000";
   int i = EEPROM_OFFSET;
-  EEPROM_WRITE_VAR(i, ver); // invalidate data first
+  spiflash_erase(EEPROM_OFFSET);
+  //EEPROM_WRITE_VAR(i, ver); // invalidate data first
+  i=i+4;
   EEPROM_WRITE_VAR(i, axis_steps_per_unit);
   EEPROM_WRITE_VAR(i, max_feedrate);
   EEPROM_WRITE_VAR(i, max_acceleration_units_per_sq_second);
@@ -293,7 +311,7 @@ void Config_StoreSettings()  {
  */
 
 void Config_RetrieveSettings() {
-
+  spiflash_init();
   int i = EEPROM_OFFSET;
   char stored_ver[4];
   char ver[4] = EEPROM_VERSION;

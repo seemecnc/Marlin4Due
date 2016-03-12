@@ -5528,7 +5528,32 @@ void process_next_command() {
           gcode_M280();
           break;
       #endif // NUM_SERVOS > 0
-
+      
+        case 281: // SPIFLASH INIT
+          spiflash_init();
+          break;
+        case 282: // SPIFLASH ERASE
+          SerialUSB.println(F("SPIFLASH ERASE!"));
+          spiflash_erase(0);
+          break;
+        case 283: // SPIFLASH READ
+          SerialUSB.println("SPIFLASH READ!");
+          SerialUSB.print("ReadByte: "); SerialUSB.println(spiflash_read_byte(0));
+          SerialUSB.print("ReadByte: "); SerialUSB.println(spiflash_read_byte(1));
+          SerialUSB.print("ReadByte: "); SerialUSB.println(spiflash_read_byte(2));
+          break;
+        case 284: // SPIFLASH WRITE
+          SerialUSB.println("SPIFLASH ERASE!");
+          spiflash_erase(0);
+          SerialUSB.println("SPIFLASH WRITE!");
+          spiflash_write_byte(0,39);
+          SerialUSB.print("ReadByte: "); SerialUSB.println(spiflash_read_byte(0));
+          spiflash_write_byte(1,38);
+          SerialUSB.print("ReadByte: "); SerialUSB.println(spiflash_read_byte(1));
+          spiflash_write_byte(2,37);
+          SerialUSB.print("ReadByte: "); SerialUSB.println(spiflash_read_byte(2));
+          break;
+      
       #if HAS_LCD_BUZZ
         case 300: // M300 - Play beep tone
           gcode_M300();
