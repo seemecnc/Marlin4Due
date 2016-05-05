@@ -12,10 +12,26 @@ Download Arduino 1.6.0 and then install the ArduinoAddons for Arduino_1.6.0.
 
 ### This is an experimental repository! You should never leave your printer alone.
 
+### Story about Marlin 32bit
+Story is currently over. I will not make any new updates. Maybe you could try other forks or take this work and make your own update. There were a lot of guys how take this and make their own version. 
+
+Thanks again to bobc even if he was unlucky when I've started with this.
+
+*Wurstnase*
+
+### This is an experimental repository! You should never leave your printer alone.
+
+### New features are:
+* Stepping-algorithm optmized now for DRV8825 and A4988 (no need for double or quadstepping; no delays)
+* High speed stepping of approx. 295,000 steps/s, if needed (maybe more with less DOUBLE_STEP_FREQUENCY?)
+* watchdog implemented (you need to modify one Arduino-file for it; comment out WDT_Disable(WDT) in your variant.cpp)
+ 
 ### known issues:
-* watchdog doesn't work
 * advanced extruder not implemented
+<<<<<<< HEAD
 * some drivers are too slow, i'm working on a solution [FIXED FOR AMBIT]
+=======
+>>>>>>> wurst/master
 
 ---
 # Marlin 3D Printer Firmware
@@ -47,7 +63,6 @@ This firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter
 The current Marlin4Due dev team consists of:
 
  - Nico [@wurstnase]
- - 
 
 ## Donation
 
@@ -62,5 +77,3 @@ More features have been added by:
 
 Marlin is published under the [GPL license](/Documentation/COPYING.md) because We believe in open development.
 Do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
-
-Marlin4Due [![Flattr Marlin4Due](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=Wurstnase&url=https%3A%2F%2Fgithub.com%2FWurstnase%2FMarlin4Due) MarlinFirmware [![Flattr MarlinFirmware](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)

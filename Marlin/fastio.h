@@ -1,6 +1,7 @@
 /*
  Contributors:
-    Copyright (c) 2015 Nico Tonnhofer wurstnase.reprap@gmail.com
+    Copyright (c) 2014 Bob Cousins bobcousins42@googlemail.com
+    Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
 */
 /* **************************************************************************
  This program is free software: you can redistribute it and/or modify
@@ -56,7 +57,7 @@ static inline void digitalFastWrite(int pin, bool v) {
 
 #define _FASTREAD(IO) ((bool)(DIO ## IO ## _WPORT -> PIO_PDSR & (MASK(DIO ## IO ## _PIN))))
 
-#define _FASTWRITE(IO, v) do {  if (v) {DIO ## IO ## _WPORT -> PIO_SODR |= MASK(DIO ## IO ##_PIN); } \
+#define _FASTWRITE(IO, v) do {  if (v) {DIO ## IO ## _WPORT -> PIO_SODR = MASK(DIO ## IO ##_PIN); } \
                                 else {DIO ##  IO ## _WPORT -> PIO_CODR = MASK(DIO ## IO ## _PIN); }; \
                           } while (0)
 

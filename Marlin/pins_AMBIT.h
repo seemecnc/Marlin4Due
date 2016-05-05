@@ -5,6 +5,20 @@
 #if MOTHERBOARD == BOARD_AMBIT
 #define KNOWN_BOARD 1
 
+#undef X_MS1_PIN
+#undef X_MS2_PIN
+#undef Y_MS1_PIN
+#undef Y_MS2_PIN
+#undef Z_MS1_PIN
+#undef Z_MS2_PIN
+#undef E0_MS1_PIN
+#undef E0_MS2_PIN
+#undef E1_MS1_PIN
+#undef E1_MS2_PIN
+//#undef DIGIPOTSS_PIN
+//#undef HEATER_3_PIN
+//#undef TEMP_3_PIN
+
 #define X_STEP_PIN         40 //PC8 STEP1
 #define X_DIR_PIN          59 //PA4 DIR1 (Analog Input 5)
 #define X_ENABLE_PIN       41 //PC9 EN1

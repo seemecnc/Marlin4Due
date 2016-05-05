@@ -50,7 +50,7 @@
 #endif
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-extern bool abort_on_endstop_hit;
+  extern bool abort_on_endstop_hit;
 #endif
 
 // Initialize and start the stepper motor subsystem
@@ -66,10 +66,8 @@ void st_set_e_position(const long &e);
 // Get current position in steps
 long st_get_position(uint8_t axis);
 
-#ifdef ENABLE_AUTO_BED_LEVELING
-  // Get current position in mm
-  float st_get_position_mm(AxisEnum axis);
-#endif
+// Get current position in mm
+float st_get_position_mm(AxisEnum axis);
 
 // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
 // to notify the subsystem that it is time to go to work.

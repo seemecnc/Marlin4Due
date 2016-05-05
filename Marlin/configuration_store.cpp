@@ -56,7 +56,7 @@
  *  M145 S1 F absPreheatFanSpeed
  *
  * PIDTEMP:
- *  M301 E0 PIDCM  Kp[0], Ki[0], Kd[0], Kc[0], Km[0]
+ *  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]
  *  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]
  *  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]
  *  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]
@@ -228,7 +228,6 @@ void Config_StoreSettings()  {
         EEPROM_WRITE_VAR(i, PID_PARAM(Kp, e));
         EEPROM_WRITE_VAR(i, PID_PARAM(Ki, e));
         EEPROM_WRITE_VAR(i, PID_PARAM(Kd, e));
-        EEPROM_WRITE_VAR(i, PID_PARAM(Km, e));
         #ifdef PID_ADD_EXTRUSION_RATE
           EEPROM_WRITE_VAR(i, PID_PARAM(Kc, e));
         #else
@@ -398,7 +397,6 @@ void Config_RetrieveSettings() {
           PID_PARAM(Kp, e) = dummy;
           EEPROM_READ_VAR(i, PID_PARAM(Ki, e));
           EEPROM_READ_VAR(i, PID_PARAM(Kd, e));
-          EEPROM_READ_VAR(i, PID_PARAM(Km, e));
           #ifdef PID_ADD_EXTRUSION_RATE
             EEPROM_READ_VAR(i, PID_PARAM(Kc, e));
           #else
@@ -406,12 +404,12 @@ void Config_RetrieveSettings() {
           #endif
         }
         else {
-          for (int q=4; q--;) EEPROM_READ_VAR(i, dummy); // Ki, Kd, Kc, Km
+          for (int q=3; q--;) EEPROM_READ_VAR(i, dummy); // Ki, Kd, Kc
         }
       }
     #else // !PIDTEMP
-      // 4 x 5 = 20 slots for PID parameters
-      for (int q=20; q--;) EEPROM_READ_VAR(i, dummy);  // 4x Kp, Ki, Kd, Kc, Km
+      // 4 x 4 = 16 slots for PID parameters
+      for (int q=16; q--;) EEPROM_READ_VAR(i, dummy);  // 4x Kp, Ki, Kd, Kc
     #endif // !PIDTEMP
 
     #ifndef PIDTEMPBED
@@ -496,7 +494,7 @@ void Config_ResetDefault() {
     max_feedrate[i] = tmp2[i];
     max_acceleration_units_per_sq_second[i] = tmp3[i];
     #ifdef SCARA
-      if (i < sizeof(axis_scaling) / sizeof(*axis_scaling))
+      if (i < COUNT(axis_scaling))
         axis_scaling[i] = 1;
     #endif
   }
@@ -520,7 +518,7 @@ void Config_ResetDefault() {
   #endif
 
   #ifdef ENABLE_AUTO_BED_LEVELING
-    zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+    zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
   #endif
 
   #ifdef DELTA
@@ -556,7 +554,6 @@ void Config_ResetDefault() {
       PID_PARAM(Kp, e) = DEFAULT_Kp;
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
-      PID_PARAM(Km, e) = PID_MAX;
       #ifdef PID_ADD_EXTRUSION_RATE
         PID_PARAM(Kc, e) = DEFAULT_Kc;
       #endif
@@ -772,7 +769,7 @@ void Config_PrintSettings(bool forReplay) {
             SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, i));
             SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, i)));
             SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, i)));
-            SERIAL_ECHOPAIR(" Max_PID ", (unsigned long)PID_PARAM(Km, i));
+            //SERIAL_ECHOPAIR(" Max_PID ", (unsigned long)PID_PARAM(Km, i));
             #ifdef PID_ADD_EXTRUSION_RATE
               SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, i));
             #endif      
@@ -787,7 +784,6 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOPAIR("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0
         SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
         SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
-        SERIAL_ECHOPAIR(" Max_PID ", (unsigned long)PID_PARAM(Km, 0));
         #ifdef PID_ADD_EXTRUSION_RATE
           SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
         #endif      
@@ -890,12 +886,11 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M", (unsigned long)CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
-      SERIAL_ECHOPAIR(" Z", -zprobe_zoffset);
+      SERIAL_ECHOPAIR("  M" STRINGIFY(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET) " Z", zprobe_zoffset);
     #else
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", -zprobe_zoffset);
+        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", zprobe_zoffset);
       }
     #endif
     SERIAL_EOL;

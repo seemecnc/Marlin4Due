@@ -44,7 +44,7 @@ static void lcd_status_screen();
   #if HAS_POWER_SWITCH
     extern bool powersupply;
   #endif
-  static float manual_feedrate[] = MANUAL_FEEDRATE;
+  const float manual_feedrate[] = MANUAL_FEEDRATE;
   static void lcd_main_menu();
   static void lcd_tune_menu();
   static void lcd_prepare_menu();
@@ -508,16 +508,16 @@ static void lcd_tune_menu() {
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
   MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
-  MENU_ITEM_EDIT(int3, MSG_FLOW, &extruder_multiply[active_extruder], 10, 999);
-  MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F0, &extruder_multiply[0], 10, 999);
+  MENU_ITEM_EDIT(int3, MSG_FLOW, &extruder_multiplier[active_extruder], 10, 999);
+  MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N0, &extruder_multiplier[0], 10, 999);
   #if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F1, &extruder_multiply[1], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N1, &extruder_multiplier[1], 10, 999);
   #endif
   #if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F2, &extruder_multiply[2], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N2, &extruder_multiplier[2], 10, 999);
   #endif
   #if TEMP_SENSOR_3 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F3, &extruder_multiply[3], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N3, &extruder_multiplier[3], 10, 999);
   #endif
 
   #ifdef BABYSTEPPING
@@ -535,29 +535,25 @@ static void lcd_tune_menu() {
 
 void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
   if (temph > 0) setTargetHotend(temph, endnum);
-  setTargetBed(tempb);
+  #if TEMP_SENSOR_BED != 0
+    setTargetBed(tempb);
+  #endif
   fanSpeed = fan;
   lcd_return_to_status();
-  #ifdef WATCH_TEMP_PERIOD
-    if (endnum >= 0) start_watching_heater(endnum);
-  #endif
 }
 void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
 void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
 
-#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0 //more than one extruder present
-
-  #if TEMP_SENSOR_1 != 0
-    void lcd_preheat_pla1() { _lcd_preheat(1, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
-    void lcd_preheat_abs1() { _lcd_preheat(1, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
-  #endif
-  #if TEMP_SENSOR_2 != 0
+#if EXTRUDERS > 1
+  void lcd_preheat_pla1() { _lcd_preheat(1, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
+  void lcd_preheat_abs1() { _lcd_preheat(1, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
+  #if EXTRUDERS > 2
     void lcd_preheat_pla2() { _lcd_preheat(2, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
     void lcd_preheat_abs2() { _lcd_preheat(2, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
-  #endif
-  #if TEMP_SENSOR_3 != 0
-    void lcd_preheat_pla3() { _lcd_preheat(3, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
-    void lcd_preheat_abs3() { _lcd_preheat(3, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
+    #if EXTRUDERS > 3
+      void lcd_preheat_pla3() { _lcd_preheat(3, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
+      void lcd_preheat_abs3() { _lcd_preheat(3, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
+    #endif
   #endif
 
   void lcd_preheat_pla0123() {
@@ -573,60 +569,63 @@ void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTem
     _lcd_preheat(3, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed);
   }
 
-  #if TEMP_SENSOR_0 != 0
+#endif // EXTRUDERS > 1
 
-    void lcd_preheat_pla_bedonly() { _lcd_preheat(0, 0, plaPreheatHPBTemp, plaPreheatFanSpeed); }
-    void lcd_preheat_abs_bedonly() { _lcd_preheat(0, 0, absPreheatHPBTemp, absPreheatFanSpeed); }
+#if TEMP_SENSOR_BED != 0
+  void lcd_preheat_pla_bedonly() { _lcd_preheat(0, 0, plaPreheatHPBTemp, plaPreheatFanSpeed); }
+  void lcd_preheat_abs_bedonly() { _lcd_preheat(0, 0, absPreheatHPBTemp, absPreheatFanSpeed); }
+#endif
 
-    static void lcd_preheat_pla_menu() {
-      START_MENU(lcd_prepare_menu);
-      MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-      MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H1, lcd_preheat_pla0);
-      #if TEMP_SENSOR_1 != 0
-        MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H2, lcd_preheat_pla1);
-      #endif
-      #if TEMP_SENSOR_2 != 0
+static void lcd_preheat_pla_menu() {
+  START_MENU(lcd_prepare_menu);
+  MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+  #if EXTRUDERS == 1
+    MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla0);
+  #else
+    MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H1, lcd_preheat_pla0);
+    #if EXTRUDERS > 1
+      MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H2, lcd_preheat_pla1);
+      #if EXTRUDERS > 2
         MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H3, lcd_preheat_pla2);
+        #if EXTRUDERS > 3
+          MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H4, lcd_preheat_pla3);
+        #endif
       #endif
-      #if TEMP_SENSOR_3 != 0
-        MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H4, lcd_preheat_pla3);
-      #endif
-      MENU_ITEM(function, MSG_PREHEAT_PLA_ALL, lcd_preheat_pla0123);
-      #if TEMP_SENSOR_BED != 0
-        MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
-      #endif
-      END_MENU();
-    }
-
-    static void lcd_preheat_abs_menu() {
-      START_MENU(lcd_prepare_menu);
-      MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-      MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H1, lcd_preheat_abs0);
-      #if TEMP_SENSOR_1 != 0
-        MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H2, lcd_preheat_abs1);
-      #endif
-      #if TEMP_SENSOR_2 != 0
-        MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H3, lcd_preheat_abs2);
-      #endif
-      #if TEMP_SENSOR_3 != 0
-        MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H4, lcd_preheat_abs3);
-      #endif
-      MENU_ITEM(function, MSG_PREHEAT_ABS_ALL, lcd_preheat_abs0123);
-      #if TEMP_SENSOR_BED != 0
-        MENU_ITEM(function, MSG_PREHEAT_ABS_BEDONLY, lcd_preheat_abs_bedonly);
-      #endif
-      END_MENU();
-    }
+    #endif
+    MENU_ITEM(function, MSG_PREHEAT_PLA_ALL, lcd_preheat_pla0123);
   #endif
+  #if TEMP_SENSOR_BED != 0
+    MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
+  #endif
+  END_MENU();
+}
 
-#endif // more than one temperature sensor present
+static void lcd_preheat_abs_menu() {
+  START_MENU(lcd_prepare_menu);
+  MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+  #if EXTRUDERS == 1
+    MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
+  #else
+    MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H1, lcd_preheat_abs0);
+    #if EXTRUDERS > 1
+      MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H2, lcd_preheat_abs1);
+      #if EXTRUDERS > 2
+        MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H3, lcd_preheat_abs2);
+        #if EXTRUDERS > 3
+          MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H4, lcd_preheat_abs3);
+        #endif
+      #endif
+    #endif
+    MENU_ITEM(function, MSG_PREHEAT_ABS_ALL, lcd_preheat_abs0123);
+  #endif
+  #if TEMP_SENSOR_BED != 0
+    MENU_ITEM(function, MSG_PREHEAT_ABS_BEDONLY, lcd_preheat_abs_bedonly);
+  #endif
+  END_MENU();
+}
 
 void lcd_cooldown() {
-  setTargetHotend0(0);
-  setTargetHotend1(0);
-  setTargetHotend2(0);
-  setTargetHotend3(0);
-  setTargetBed(0);
+  disable_all_heaters();
   fanSpeed = 0;
   lcd_return_to_status();
 }
@@ -761,9 +760,9 @@ static void _lcd_move(const char *name, AxisEnum axis, int min, int max) {
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
 }
-static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
-static void lcd_move_y() { _lcd_move(PSTR("Y"), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
-static void lcd_move_z() { _lcd_move(PSTR("Z"), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
+static void lcd_move_x() { _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, X_MIN_POS, X_MAX_POS); }
+static void lcd_move_y() { _lcd_move(PSTR(MSG_MOVE_Y), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
+static void lcd_move_z() { _lcd_move(PSTR(MSG_MOVE_Z), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
 static void lcd_move_e() {
   if (encoderPosition != 0) {
     current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
@@ -771,7 +770,7 @@ static void lcd_move_e() {
     line_to_current(E_AXIS);
     lcdDrawUpdate = 1;
   }
-  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_MOVE_E), ftostr31(current_position[E_AXIS]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
 }
 
@@ -892,7 +891,6 @@ static void lcd_control_menu() {
  * "Control" > "Temperature" submenu
  *
  */
-
 static void lcd_control_temperature_menu() {
   START_MENU(lcd_control_menu);
   //
@@ -1130,13 +1128,24 @@ static void lcd_control_volumetric_menu() {
 #ifdef HAS_LCD_CONTRAST
   static void lcd_set_contrast() {
     if (encoderPosition != 0) {
-      lcd_contrast -= encoderPosition;
-      lcd_contrast &= 0x3F;
+      #ifdef U8GLIB_LM6059_AF
+        lcd_contrast += encoderPosition;
+        lcd_contrast &= 0xFF;
+      #else
+        lcd_contrast -= encoderPosition;
+        lcd_contrast &= 0x3F;
+      #endif
       encoderPosition = 0;
       lcdDrawUpdate = 1;
       u8g.setContrast(lcd_contrast);
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
+    if (lcdDrawUpdate) {
+      #ifdef U8GLIB_LM6059_AF
+        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr3(lcd_contrast));
+      #else
+        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
+      #endif
+    }
     if (LCD_CLICKED) lcd_goto_menu(lcd_control_menu);
   }
 #endif // HAS_LCD_CONTRAST
@@ -1318,6 +1327,13 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
  * Audio feedback for controller clicks
  *
  */
+
+#ifdef LCD_USE_I2C_BUZZER
+  void lcd_buzz(long duration, uint16_t freq) { // called from buzz() in Marlin_main.cpp where lcd is unknown
+    lcd.buzz(duration, freq);
+  }
+#endif
+
 void lcd_quick_feedback() {
   lcdDrawUpdate = 2;
   next_button_update_ms = millis() + 500;
@@ -1329,7 +1345,7 @@ void lcd_quick_feedback() {
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS (1000/6)
     #endif    
-    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+    lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
   #elif defined(BEEPER) && BEEPER >= 0
     #ifndef LCD_FEEDBACK_FREQUENCY_HZ
       #define LCD_FEEDBACK_FREQUENCY_HZ 5000
@@ -1337,7 +1353,7 @@ void lcd_quick_feedback() {
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
     #endif
-    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+    buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
   #else
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
@@ -1391,6 +1407,10 @@ void lcd_init() {
   #if BTN_ENC > 0
     SET_INPUT(BTN_ENC);
     PULLUP(BTN_ENC,HIGH);
+  #endif
+  #if BTN_BACK > 0
+    SET_INPUT(BTN_BACK);
+    PULLUP(BTN_BACK,HIGH);
   #endif
   #ifdef REPRAPWORLD_KEYPAD
     pinMode(SHIFT_CLK,OUTPUT);
@@ -1765,24 +1785,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     #else
       return true;
     #endif
-  }
-
-  void lcd_buzz(long duration, uint16_t freq) {
-    if (freq > 0) {
-      #if BEEPER > 0
-        SET_OUTPUT(BEEPER);
-        tone(BEEPER, freq);
-        delay(duration);
-        noTone(BEEPER);
-      #elif defined(LCD_USE_I2C_BUZZER)
-        lcd.buzz(duration, freq);
-      #else
-        delay(duration);
-      #endif
-    }
-    else {
-      delay(duration);
-    }
   }
 
   bool lcd_clicked() { return LCD_CLICKED; }

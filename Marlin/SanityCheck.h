@@ -51,7 +51,7 @@
   #endif
 
   /**
-   * Options only for EXTRUDERS == 1
+   * Options only for EXTRUDERS > 1
    */
   #if EXTRUDERS > 1
 
@@ -83,6 +83,24 @@
   #if NUM_SERVOS > 4
     #error The maximum number of SERVOS in Marlin is 4.
   #endif
+  #if defined(NUM_SERVOS) && NUM_SERVOS > 0
+    #if X_ENDSTOP_SERVO_NR >= 0 || Y_ENDSTOP_SERVO_NR >= 0 || Z_ENDSTOP_SERVO_NR >= 0
+      #if X_ENDSTOP_SERVO_NR >= NUM_SERVOS
+        #error X_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS.
+      #elif Y_ENDSTOP_SERVO_NR >= NUM_SERVOS
+        #error Y_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS.
+      #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
+        #error Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS.
+      #endif
+    #endif
+  #endif
+
+  /**
+   * Servo deactivation depends on servo endstops
+   */
+  #if defined(DEACTIVATE_SERVOS_AFTER_MOVE) && !defined(SERVO_ENDSTOPS)
+    #error At least one of the ?_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE.
+  #endif
 
   /**
    * Required LCD language
@@ -96,13 +114,13 @@
    */
   #ifdef MESH_BED_LEVELING
     #ifdef DELTA
-      #error MESH_BED_LEVELING does not yet support DELTA printers
+      #error MESH_BED_LEVELING does not yet support DELTA printers.
     #endif
     #ifdef ENABLE_AUTO_BED_LEVELING
-      #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both
+      #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both.
     #endif
     #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
-      #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8
+      #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8.
     #endif
   #endif
 
@@ -129,71 +147,47 @@
      */
     #if defined(Z_PROBE_ENDSTOP)
       #ifndef Z_PROBE_PIN
-        #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP
+        #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP.
       #endif
       #if Z_PROBE_PIN == -1
-        #error You must set Z_PROBE_PIN to a valid pin if you enable Z_PROBE_ENDSTOP
+        #error You must set Z_PROBE_PIN to a valid pin if you enable Z_PROBE_ENDSTOP.
       #endif
 // Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
 //      #ifndef NUM_SERVOS
-//        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_ENDSTOP
+//        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_ENDSTOP.
 //      #endif
 //      #if defined(NUM_SERVOS) && NUM_SERVOS < 1
-//        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_ENDSTOP
+//        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_ENDSTOP.
 //      #endif
-//      #ifndef SERVO_ENDSTOPS
-//        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 0 or above to use Z_PROBE_ENDSTOP
+//      #if Z_ENDSTOP_SERVO_NR < 0
+//        #error You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_PROBE_ENDSTOP.
 //      #endif
 //      #ifndef SERVO_ENDSTOP_ANGLES
-//        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_AND_ENSTOP
+//        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_ENDSTOP.
 //      #endif
     #endif
     /**
      * Check if Probe_Offset * Grid Points is greater than Probing Range
      */
     #ifdef AUTO_BED_LEVELING_GRID
-
-      // Make sure probing points are reachable
-      #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
-        #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
-      #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
-        #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
-      #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
-        #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
-      #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
-        #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
-      #endif
-
-      #define PROBE_SIZE_X (X_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1))
-      #define PROBE_SIZE_Y (Y_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1))
-      #define PROBE_AREA_WIDTH (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION)
-      #define PROBE_AREA_DEPTH (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION)
-      #if X_PROBE_OFFSET_FROM_EXTRUDER < 0
-        #if PROBE_SIZE_X <= -PROBE_AREA_WIDTH
-          #define X_PROBE_ERROR
+      #ifndef DELTA_PROBABLE_RADIUS
+        // Be sure points are in the right order
+        #if LEFT_PROBE_BED_POSITION > RIGHT_PROBE_BED_POSITION
+          #error LEFT_PROBE_BED_POSITION must be less than RIGHT_PROBE_BED_POSITION.
+        #elif FRONT_PROBE_BED_POSITION > BACK_PROBE_BED_POSITION
+          #error BACK_PROBE_BED_POSITION must be less than FRONT_PROBE_BED_POSITION.
         #endif
-      #elif PROBE_SIZE_X >= PROBE_AREA_WIDTH
-        #define X_PROBE_ERROR
-      #endif
-      #ifdef X_PROBE_ERROR
-        #error The X axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
-      #endif
-      #if Y_PROBE_OFFSET_FROM_EXTRUDER < 0
-        #if PROBE_SIZE_Y <= -PROBE_AREA_DEPTH
-          #define Y_PROBE_ERROR
+        // Make sure probing points are reachable
+        #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
+          #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
+        #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
+          #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
+        #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
+          #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
+        #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
+          #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
         #endif
-      #elif PROBE_SIZE_Y >= PROBE_AREA_DEPTH
-        #define Y_PROBE_ERROR
       #endif
-      #ifdef Y_PROBE_ERROR
-        #error The Y axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
-      #endif
-
-      #undef PROBE_SIZE_X
-      #undef PROBE_SIZE_Y
-      #undef PROBE_AREA_WIDTH
-      #undef PROBE_AREA_DEPTH
-
     #else // !AUTO_BED_LEVELING_GRID
 
       // Check the triangulation points
@@ -272,57 +266,100 @@
    */
   #if HAS_AUTO_FAN && HAS_FAN
     #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
-      #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN
+      #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN.
     #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
-      #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN
+      #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN.
     #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
-      #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN
+      #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN.
     #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
-      #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN
+      #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN.
     #endif
   #endif
 
   #if HAS_FAN && CONTROLLERFAN_PIN == FAN_PIN
-    #error You cannot set CONTROLLERFAN_PIN equal to FAN_PIN
+    #error You cannot set CONTROLLERFAN_PIN equal to FAN_PIN.
   #endif
 
   /**
-   * Test required HEATER defines
+   * Test Heater, Temp Sensor, and Extruder Pins; Sensor Type must also be set.
    */
   #if EXTRUDERS > 3
     #if !HAS_HEATER_3
-      #error HEATER_3_PIN not defined for this board
+      #error HEATER_3_PIN not defined for this board.
+    #elif !PIN_EXISTS(TEMP_3)
+      #error TEMP_3_PIN not defined for this board.
+    #elif !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
+      #error E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board.
+    #elif TEMP_SENSOR_3 == 0
+      #error TEMP_SENSOR_3 is required with 4 EXTRUDERS.
     #endif
   #elif EXTRUDERS > 2
     #if !HAS_HEATER_2
-      #error HEATER_2_PIN not defined for this board
+      #error HEATER_2_PIN not defined for this board.
+    #elif !PIN_EXISTS(TEMP_2)
+      #error TEMP_2_PIN not defined for this board.
+    #elif !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
+      #error E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board.
+    #elif TEMP_SENSOR_2 == 0
+      #error TEMP_SENSOR_2 is required with 3 or more EXTRUDERS.
     #endif
-  #elif EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
-    #if !HAS_HEATER_1
-      #error HEATER_1_PIN not defined for this board
+  #elif EXTRUDERS > 1
+    #if !PIN_EXISTS(TEMP_1)
+      #error TEMP_1_PIN not defined for this board.
+    #elif !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
+      #error E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board.
     #endif
   #endif
+
+  #if EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
+    #if !HAS_HEATER_1
+      #error HEATER_1_PIN not defined for this board.
+    #endif
+  #endif
+
+  #if TEMP_SENSOR_1 == 0
+    #if EXTRUDERS > 1
+      #error TEMP_SENSOR_1 is required with 2 or more EXTRUDERS.
+    #elif ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      #error TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT.
+    #endif
+  #endif
+
   #if !HAS_HEATER_0
-    #error HEATER_0_PIN not defined for this board
+    #error HEATER_0_PIN not defined for this board.
+  #elif !PIN_EXISTS(TEMP_0)
+    #error TEMP_0_PIN not defined for this board.
+  #elif !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
+    #error E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board.
+  #elif TEMP_SENSOR_0 == 0
+    #error TEMP_SENSOR_0 is required.
   #endif
 
   /**
    * Warnings for old configurations
    */
   #ifdef X_HOME_RETRACT_MM
-    #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM
+    #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM.
   #endif
 
   #if WATCH_TEMP_PERIOD > 500
-    #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds
+    #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds.
   #endif
 
   #if !defined(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
-    #error Thermal Runaway Protection for hotends must now be enabled with THERMAL_PROTECTION_HOTENDS
+    #error Thermal Runaway Protection for hotends must now be enabled with THERMAL_PROTECTION_HOTENDS.
   #endif
 
   #if !defined(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
-    #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED
+    #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED.
+  #endif
+
+  #ifdef PROBE_SERVO_DEACTIVATION_DELAY
+    #error PROBE_SERVO_DEACTIVATION_DELAY has been replaced with DEACTIVATE_SERVOS_AFTER_MOVE and SERVO_DEACTIVATION_DELAY.
+  #endif
+
+  #if defined(COREXZ) && defined(Z_LATE_ENABLE)
+    #error "Z_LATE_ENABLE can't be used with COREXZ."
   #endif
 
 #endif //SANITYCHECK_H

@@ -1,4 +1,4 @@
-  /**
+/**
  * Conditionals.h
  * Defines that depend on configuration but are not editable.
  */
@@ -22,20 +22,30 @@
     #define NEWPANEL
   #endif
 
-  #if defined(miniVIKI) || defined(VIKI2)
+  #if defined(miniVIKI) || defined(VIKI2) || defined(ELB_FULL_GRAPHIC_CONTROLLER)
     #define ULTRA_LCD  //general LCD support, also 16x2
     #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
     #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 
     #ifdef miniVIKI
       #define DEFAULT_LCD_CONTRAST 95
-    #else
+    #elif defined(VIKI2)
       #define DEFAULT_LCD_CONTRAST 40
+    #elif defined(ELB_FULL_GRAPHIC_CONTROLLER)
+      #define DEFAULT_LCD_CONTRAST 110
+      #define U8GLIB_LM6059_AF
     #endif
 
     #define ENCODER_PULSES_PER_STEP 4
     #define ENCODER_STEPS_PER_MENU_ITEM 1
   #endif
+
+  // Generic support for SSD1306 OLED based LCDs.
+  #if defined(U8GLIB_SSD1306)
+    #define ULTRA_LCD  //general LCD support, also 16x2
+    #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 graphic Display Family)
+  #endif
+
 
   #ifdef PANEL_ONE
     #define SDSUPPORT
@@ -47,14 +57,15 @@
     #define U8GLIB_ST7920
     #define REPRAP_DISCOUNT_SMART_CONTROLLER
   #endif
-  
-  #ifdef SSD1306_OLED_I2C_CONTROLLER
-    #define DOGLCD
-    #define U8GLIB_SSD1306
-    #define ULTIPANEL
-    #define NEWPANEL
-  #endif
 
+  #ifdef SPARK_FULL_GRAPHICS
+    #define ENCODER_PULSES_PER_STEP 2
+    #define ENCODER_STEPS_PER_MENU_ITEM 1
+
+    #define DOGLCD
+    #define U8GLIB_ST7920
+    #define REPRAP_DISCOUNT_SMART_CONTROLLER
+  #endif
 
   #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
     #define ULTIPANEL
@@ -96,11 +107,6 @@
 
   // PANELOLU2 LCD with status LEDs, separate encoder and click inputs
   #ifdef LCD_I2C_PANELOLU2
-    // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
-    // Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
-    // (v1.2.3 no longer requires you to define PANELOLU in the LiquidTWI2.h library header file)
-    // Note: The PANELOLU2 encoder click input can either be directly connected to a pin
-    //       (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
@@ -209,23 +215,19 @@
     #define HAS_LCD_CONTRAST
     #ifdef U8GLIB_ST7920
       #undef HAS_LCD_CONTRAST
-    #endif  
-    #ifdef SSD1306_OLED_I2C_CONTROLLER
-      #undef HAS_LCD_CONTRAST
     #endif
+    #ifdef U8GLIB_SSD1306
+      #undef HAS_LCD_CONTRAST
+    #endif  
   #endif
 
 #else // CONFIGURATION_LCD
 
   #define CONDITIONALS_H
 
-  #if (ARDUINO >= 100)
-    #include "Arduino.h"
-  #else
-    #include "WProgram.h"
-  #endif
-
   #include "pins.h"
+
+  #include "Arduino.h"
 
   /**
    * ENDSTOPPULLUPS
@@ -263,7 +265,6 @@
 
   /**
    * AUTOSET LOCATIONS OF LIMIT SWITCHES
-   * Added by ZetaPhoenix 09-15-2012
    */
   #ifdef MANUAL_HOME_POSITIONS  // Use manual limit switch locations
     #define X_HOME_POS MANUAL_X_HOME_POS
@@ -291,6 +292,8 @@
     #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
   #endif
 
+  #define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && defined(DEACTIVATE_SERVOS_AFTER_MOVE))
+
    /**
     * Sled Options
     */ 
@@ -301,12 +304,12 @@
   /**
    * MAX_STEP_FREQUENCY differs for TOSHIBA
    */
-  #ifdef CONFIG_STEPPERS_TOSHIBA
-    #define MAX_STEP_FREQUENCY 120000 // Max step frequency for Toshiba Stepper Controllers
+  #if defined(CONFIG_STEPPERS_TOSHIBA) || !defined(ENABLE_HIGH_SPEED_STEPPING)
+    #define MAX_STEP_FREQUENCY 150000 // Max step frequency for Toshiba Stepper Controllers
     #define DOUBLE_STEP_FREQUENCY MAX_STEP_FREQUENCY
   #else
     #define MAX_STEP_FREQUENCY 500000    // Max step frequency for the Due is approx. 330kHz
-    #define DOUBLE_STEP_FREQUENCY 120000  //96kHz is close to maximum for an Arduino Due
+    #define DOUBLE_STEP_FREQUENCY 100000  //96kHz is close to maximum for an Arduino Due
   #endif
 
   // MS3 MS2 MS1 Stepper Driver Microstepping mode table
@@ -325,7 +328,7 @@
     #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / EXTRUSION_AREA)
   #endif
 
-  #ifdef ULTIPANEL
+  #if defined(ULTIPANEL) && !defined(ELB_FULL_GRAPHIC_CONTROLLER)
     #undef SDCARDDETECTINVERTED
   #endif
 
@@ -411,6 +414,8 @@
     #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1 }
   #endif
 
+  #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1)
+
   /**
    * Shorthand for pin tests, used wherever needed
    */
@@ -457,6 +462,7 @@
   #define HAS_MICROSTEPS_E0 (PIN_EXISTS(E0_MS1))
   #define HAS_MICROSTEPS_E1 (PIN_EXISTS(E1_MS1))
   #define HAS_MICROSTEPS_E2 (PIN_EXISTS(E2_MS1))
+  #define HAS_STEPPER_RESET (PIN_EXISTS(STEPPER_RESET))
   #define HAS_X_ENABLE (PIN_EXISTS(X_ENABLE))
   #define HAS_X2_ENABLE (PIN_EXISTS(X2_ENABLE))
   #define HAS_Y_ENABLE (PIN_EXISTS(Y_ENABLE))
@@ -492,7 +498,9 @@
    * Helper Macros for heaters and extruder fan
    */
   
-  #ifdef INVERTED_HEATER_PINS
+  // #ifdef INVERTED_HEATER_PINS 
+  // Dawson - rename to something that is more correctly descriptive . . . More than just heaters on the MOSFETS . . . 
+  #ifdef INVERTED_MOSFET_CHANNELS
     #define WRITE_HEATER(pin,value) WRITE(pin,!value)
   #else
     #define WRITE_HEATER(pin,value) WRITE(pin,value)
@@ -517,7 +525,30 @@
     #define WRITE_HEATER_BED(v) WRITE_HEATER(HEATER_BED_PIN, v)
   #endif
   #if HAS_FAN
-    #define WRITE_FAN(v) WRITE(FAN_PIN, v)
+    //#ifdef INVERTED_HEATER_PINS //Dawson - layer fan control for RAMPS-FDv1
+    #ifdef INVERTED_MOSFET_CHANNELS //Dawson - layer fan control for RAMPS-FDv1
+      #define WRITE_FAN(v) WRITE(FAN_PIN, !v)
+    #else
+      #define WRITE_FAN(v) WRITE(FAN_PIN, v)
+    #endif // INVERTED_HEATER_PINS
+  #endif
+
+  #define HAS_BUZZER ((defined(BEEPER) && BEEPER >= 0) || defined(LCD_USE_I2C_BUZZER))
+
+
+  #if defined( NUM_SERVOS ) && (NUM_SERVOS > 0)
+    #ifndef X_ENDSTOP_SERVO_NR
+      #define X_ENDSTOP_SERVO_NR -1
+    #endif
+    #ifndef Y_ENDSTOP_SERVO_NR
+      #define Y_ENDSTOP_SERVO_NR -1
+    #endif
+    #ifndef Z_ENDSTOP_SERVO_NR
+      #define Z_ENDSTOP_SERVO_NR -1
+    #endif
+    #if (X_ENDSTOP_SERVO_NR >= 0) || (Y_ENDSTOP_SERVO_NR >= 0) || (Z_ENDSTOP_SERVO_NR >= 0)
+      #define SERVO_ENDSTOPS {X_ENDSTOP_SERVO_NR, Y_ENDSTOP_SERVO_NR, Z_ENDSTOP_SERVO_NR}
+    #endif
   #endif
 
 #endif //CONFIGURATION_LCD

@@ -41,6 +41,7 @@
 // --------------------------------------------------------------------------
 
 #define analogInputToDigitalPin(IO) IO
+#define FORCE_INLINE __attribute__((always_inline)) inline
 
 #define     CRITICAL_SECTION_START	uint32_t primask=__get_PRIMASK(); __disable_irq();
 #define     CRITICAL_SECTION_END    if (primask==0) __enable_irq();
@@ -49,9 +50,6 @@
 #define square(x) ((x)*(x))
 
 #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-
-#define HIGH 1
-#define LOW 0
 
 // --------------------------------------------------------------------------
 // Types
@@ -63,7 +61,6 @@
 
 // reset reason set by bootloader
 extern uint8_t MCUSR;
-static uint32_t tone_pin;
 volatile static uint32_t debug_counter;
 
 // --------------------------------------------------------------------------
@@ -134,27 +131,38 @@ unsigned char eeprom_read_byte(unsigned char *pos);
 
 void HAL_step_timer_start(void);
 void HAL_temp_timer_start (uint8_t timer_num);
-void HAL_timer_set_count (Tc *tc, uint32_t channel, uint32_t count);
 
 void HAL_timer_enable_interrupt (uint8_t timer_num);
 void HAL_timer_disable_interrupt (uint8_t timer_num);
 
-void HAL_timer_isr_status (Tc *tc, uint32_t channel);
+inline
+void HAL_timer_isr_status (Tc* tc, uint32_t channel) {
+  tc->TC_CHANNEL[channel].TC_SR; // clear status register
+}
+
 int HAL_timer_get_count (uint8_t timer_num);
-uint32_t HAL_timer_get_count_value ();
-void HAL_timer_clear (Tc* tc, uint32_t channel);
 //
 
 void tone(uint8_t pin, int frequency);
 void noTone(uint8_t pin);
 //void tone(uint8_t pin, int frequency, long duration);
 
+//<<<<<<< HEAD
 
 uint8_t spiflash_busy();
 uint8_t spiflash_read_byte(long address);
 void spiflash_erase(long address);
 void spiflash_write_byte(long address, uint8_t value);
 void spiflash_init();
+//=======
+uint16_t getAdcReading(adc_channel_num_t chan);
+void startAdcConversion(adc_channel_num_t chan);
+adc_channel_num_t pinToAdcChannel(int pin);
+
+uint16_t getAdcFreerun(adc_channel_num_t chan, bool wait_for_conversion = false);
+uint16_t getAdcSuperSample(adc_channel_num_t chan);
+void stopAdcFreerun(adc_channel_num_t chan);
+//>>>>>>> wurst/master
 
 // --------------------------------------------------------------------------
 //

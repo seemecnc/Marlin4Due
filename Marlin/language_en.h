@@ -135,6 +135,12 @@
 #ifndef MSG_NOZZLE
 #define MSG_NOZZLE                          "Nozzle"
 #endif
+#ifndef MSG_N0
+#define MSG_N0                              " 0"
+#endif
+#ifndef MSG_N1
+#define MSG_N1                              " 1"
+#endif
 #ifndef MSG_N2
 #define MSG_N2                              " 2"
 #endif
@@ -153,29 +159,17 @@
 #ifndef MSG_FLOW
 #define MSG_FLOW                            "Flow"
 #endif
-#ifndef MSG_F0
-#define MSG_F0                              " 0"
-#endif
-#ifndef MSG_F1
-#define MSG_F1                              " 1"
-#endif
-#ifndef MSG_F2
-#define MSG_F2                              " 2"
-#endif
-#ifndef MSG_F3
-#define MSG_F3                              " 3"
-#endif
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
 #endif
 #ifndef MSG_MIN
-#define MSG_MIN                             " "LCD_STR_THERMOMETER " Min"
+#define MSG_MIN                             " " LCD_STR_THERMOMETER " Min"
 #endif
 #ifndef MSG_MAX
-#define MSG_MAX                             " "LCD_STR_THERMOMETER " Max"
+#define MSG_MAX                             " " LCD_STR_THERMOMETER " Max"
 #endif
 #ifndef MSG_FACTOR
-#define MSG_FACTOR                          " "LCD_STR_THERMOMETER " Fact"
+#define MSG_FACTOR                          " " LCD_STR_THERMOMETER " Fact"
 #endif
 #ifndef MSG_AUTOTEMP
 #define MSG_AUTOTEMP                        "Autotemp"
@@ -417,11 +411,26 @@
 #ifndef MSG_ERR_MAXTEMP_BED
 #define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
 #endif
+#ifndef MSG_ERR_MINTEMP_BED
+#define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
+#endif
 #ifndef MSG_END_HOUR
 #define MSG_END_HOUR                        "hours"
 #endif
 #ifndef MSG_END_MINUTE
 #define MSG_END_MINUTE                      "minutes"
+#endif
+#ifndef MSG_HEATING
+#define MSG_HEATING                         "Heating..."
+#endif
+#ifndef MSG_HEATING_COMPLETE
+#define MSG_HEATING_COMPLETE                "Heating done."
+#endif
+#ifndef MSG_BED_HEATING
+#define MSG_BED_HEATING                     "Bed Heating."
+#endif
+#ifndef MSG_BED_DONE
+#define MSG_BED_DONE                        "Bed done."
 #endif
 
 #ifdef DELTA_CALIBRATION_MENU
