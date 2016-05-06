@@ -618,6 +618,7 @@ void servo_init() {
  *    • status LEDs
  */
 void setup() {
+  analogWrite(5,50);
   setup_killpin();
   setup_filrunoutpin();
   setup_powerhold();
