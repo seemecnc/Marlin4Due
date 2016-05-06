@@ -282,7 +282,7 @@ typedef struct
 _Pragma("pack()")
 
 #define D_DEVICE(_class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs) \
-	{ 18, 1, 0x200, _class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs }
+	{ 18, 1, 64 /*0x200*/, _class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs }
 
 #define D_CONFIG(_totalLength,_interfaces) \
 	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_SELF_POWERED, USB_CONFIG_POWER_MA(500) }
@@ -297,7 +297,7 @@ _Pragma("pack()")
 	{ 7, 5, _addr,_attr,_packetSize, _interval }
 
 #define D_QUALIFIER(_class,_subClass,_proto,_packetSize0,_configs) \
-	{ 10, 6, 0x200, _class,_subClass,_proto,_packetSize0,_configs }
+	{ 10, 6, 64 /*0x200*/, _class,_subClass,_proto,_packetSize0,_configs }
 
 #define D_IAD(_firstInterface, _count, _class, _subClass, _protocol) \
 	{ 8, 11, _firstInterface, _count, _class, _subClass, _protocol, 0 }
