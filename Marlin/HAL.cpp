@@ -32,7 +32,10 @@
 #include "Configuration.h"
 
 #include <Wire.h>
+
+#ifdef EEPROM_SETTINGS
 #include <SPI.h>
+#endif
 
 // --------------------------------------------------------------------------
 // Externals
@@ -104,6 +107,8 @@ int freeMemory() {
 // --------------------------------------------------------------------------
 // spiflash
 // --------------------------------------------------------------------------
+#ifdef EEPROM_SETTINGS
+
 #define SPIFLASH_CS 77  // Chip Select PIN
 #define SPIFLASH_WRITE_ENABLE  0x06  //Write Enable (06h)
 #define SPIFLASH_READ_STATUS   0x05  //Read Status Register (05h)
@@ -167,6 +172,7 @@ void spiflash_write_byte(long address, uint8_t value)
   SPI.transfer(SPIFLASH_CS, value); // Value to Write
 }
 
+#endif
 
 // --------------------------------------------------------------------------
 // eeprom

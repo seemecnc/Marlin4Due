@@ -112,6 +112,11 @@
 
 #define START_ROW              0
 
+
+  #define DOG_SCK 76 //PB6
+  #define DOG_MOSI 75 //PB5
+
+
 // LCD selection
 #ifdef U8GLIB_ST7920
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
@@ -125,6 +130,7 @@
 #elif defined(VIKI2) || defined(miniVIKI)
   // Mini Viki and Viki 2.0 LCD, ST7565 controller as well
   U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
+  //U8GLIB_NHD_C12864 u8g(DOG_SCK,DOG_MOSI,DOGLCD_CS, DOGLCD_A0);
 #elif defined(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
@@ -243,7 +249,7 @@ static void lcd_implementation_init() {
       #endif
     }
   } while (u8g.nextPage());
-  show_splashscreen = false;
+  show_splashscreen = true;
 }
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop

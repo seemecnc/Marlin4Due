@@ -149,6 +149,27 @@
   #endif  //NEWPANEL
 #endif //ULTRA_LCD
 
+#if defined(VIKI2) || defined(miniVIKI)
+
+  //#define BEEPER_PIN 44
+  // Pins for DOGM SPI LCD Support
+  #define DOGLCD_A0 94 //PB1
+  #define DOGLCD_CS 86 //PB21_CS2
+  #define LCD_SCREEN_ROT_180
+
+  //The encoder and click button
+  #define BTN_EN1 95  //PB0
+  #define BTN_EN2 93  //PB2
+  #define BTN_ENC 103  //PB3 //the click switch
+
+   //#define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
+
+  //#if defined(TEMP_STAT_LEDS)
+    //#define STAT_LED_RED      22
+    //#define STAT_LED_BLUE     32
+  //#endif
+#endif // /miniVIKI
+
 //#ifndef SDSUPPORT
   // these pins are defined in the SD library if building with SD support
   //#define SCK_PIN          76
