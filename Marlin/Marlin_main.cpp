@@ -965,8 +965,8 @@ void get_command() {
 
     if (commands_in_queue == 0) stop_buffering = false;
 
-    //    while (!card.eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
-    while (!card.sdhsmci_eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
+    while (!card.eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
+    //while (!card.sdhsmci_eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
       bool sdhsmci_read_success;
       sdhsmci_read_success = card.sdhsmci_file.Read(serial_char);
 

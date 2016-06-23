@@ -45,7 +45,7 @@ public:
     void sdhsmci_init();
     void sdhsmci_open_file(char* name, bool read);
     bool sdhsmci_eof();
-    char sdhsmci_get();
+    //char sdhsmci_get();
     void sdhsmci_printing_finished();
   #endif
   void ls();
@@ -54,9 +54,27 @@ public:
   void setroot();
 
 
+ #ifdef SDHSMCI_SUPPORT
+  FORCE_INLINE bool isFileOpen() { return sdhsmci_file.inUse); }
+ #else
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
+ #endif
+
   FORCE_INLINE bool eof() { return sdpos >= filesize; }
+ #ifdef SDHSMCI_SUPPORT
+  FORCE_INLINE int16_t get() {
+    char readByte;
+    if( sdhsmci_file.Read(readByte) ) {//if successful read
+      sdpos = sdhsmci_file.Position();
+      return readByte;
+    }
+    else {
+      return -1;
+    }
+  }
+ #else
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
+ #endif
   FORCE_INLINE void setIndex(long index) { sdpos = index; file.seekSet(index); }
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
