@@ -5,6 +5,11 @@
 #include "temperature.h"
 #include "language.h"
 
+#ifdef SDHSMCI_SUPPORT
+  #include <SD_HSMCI.h>
+  #include <Arduino_Due_SD_HSCMI.h> // This creates the object SD
+#endif
+
 #ifdef SDSUPPORT
 
 CardReader::CardReader() {
@@ -17,6 +22,10 @@ CardReader::CardReader() {
   workDirDepth = 0;
   file_subcall_ctr = 0;
   memset(workDirParents, 0, sizeof(workDirParents));
+
+  #ifdef SDHSMCI_SUPPORT
+    sdhsmci_printing = false;
+  #endif
 
   autostart_stilltocheck = true; //the SD start is delayed, because otherwise the serial cannot answer fast enough to make contact with the host software.
   autostart_index = 0;
@@ -122,10 +131,46 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
   } // while readDir
 }
 
+#ifdef SDHSMCI_SUPPORT
+void CardReader::sdhsmci_init() { SD.Init(); }
+
+bool CardReader::sdhsmci_eof() {
+  return sdhsmci_file.Position() >= filesize;
+}
+
+void sdhsmci_list_dir()
+{
+  //File name list seperated by newlines.
+
+  FileInfo file_info;
+  if (SD.FindFirst("0:/", file_info))
+  {
+      SerialUSB.println(PSTR("Begin file list"));
+      // iterate through all entries and append each file name
+      do
+      {
+        SerialUSB.print(file_info.fileName);
+        if(file_info.isDirectory) SerialUSB.print("/");
+        SerialUSB.println();
+      }
+      while (SD.FindNext(file_info));
+      SerialUSB.println(PSTR("End file list"));
+  }
+  else
+  {
+        SerialUSB.println(PSTR("NONE\n"));
+  }
+}
+#endif
+
 void CardReader::ls()  {
+ #ifdef SDHSMCI_SUPPORT
+  sdhsmci_list_dir();
+ #else
   lsAction = LS_SerialPrint;
   root.rewind();
   lsDive("", root);
+ #endif
 }
 
 #ifdef LONG_FILENAME_HOST_SUPPORT
@@ -273,7 +318,22 @@ void CardReader::getAbsFilename(char *t) {
     t[0] = 0;
 }
 
+#ifdef SDHSMCI_SUPPORT
+void CardReader::sdhsmci_open_file(char* name, bool read) {
+  sdhsmci_file.Open("0:/",name,!read); // 0 for READ, 1 for WRITE
+  SerialUSB.print(PSTR("Debug Info: filesize: "));
+  SerialUSB.println(sdhsmci_file.Length());
+  SerialUSB.print(PSTR("Debug Info: Status: "));
+  SerialUSB.println(sdhsmci_file.Status());
+  filesize = sdhsmci_file.Length();
+}
+#endif
+
 void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) {
+  #ifdef SDHSMCI_SUPPORT
+    sdhsmci_open_file(name,read);
+    return;
+  #endif
   if (!cardOK) return;
   if (file.isOpen()) { //replacing current file by new file, or subfile call
     if (!replace_current) {
@@ -577,6 +637,21 @@ void CardReader::updir() {
       workDirParents[d] = workDirParents[d+1];
   }
 }
+
+#ifdef SDHSMCI_SUPPORT
+void CardReader::sdhsmci_printing_finished() {
+  st_synchronize();
+  sdhsmci_file.Close();
+  sdprinting = false;
+  sdhsmci_printing = false;
+  autotempShutdown();
+  if (SD_FINISHED_STEPPERRELEASE) {
+    //finishAndDisableSteppers();
+    enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+  }
+}
+#endif
+
 
 void CardReader::printingHasFinished() {
   st_synchronize();

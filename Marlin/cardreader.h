@@ -6,6 +6,10 @@
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
+#ifdef SDHSMCI_SUPPORT
+  #include <SD_HSMCI.h>
+  #include <Arduino_Due_SD_HSCMI.h> // This creates the object SD
+#endif
 enum LsAction { LS_SerialPrint, LS_Count, LS_GetFilename };
 
 class CardReader {
@@ -37,6 +41,13 @@ public:
 
   void getAbsFilename(char *t);
 
+  #ifdef SDHSMCI_SUPPORT
+    void sdhsmci_init();
+    void sdhsmci_open_file(char* name, bool read);
+    bool sdhsmci_eof();
+    char sdhsmci_get();
+    void sdhsmci_printing_finished();
+  #endif
   void ls();
   void chdir(const char * relpath);
   void updir();
@@ -54,6 +65,10 @@ public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   int autostart_index;
+  #ifdef SDHSMCI_SUPPORT
+    bool sdhsmci_printing;
+    FileStore sdhsmci_file;
+  #endif
 private:
   SdFile root, *curDir, workDir, workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;

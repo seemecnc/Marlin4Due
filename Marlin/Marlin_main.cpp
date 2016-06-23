@@ -65,6 +65,12 @@
   #include <SPI.h>
 #endif
 
+#ifdef SDHSMCI_SUPPORT
+  #include <SD_HSMCI.h>
+  #include <Arduino_Due_SD_HSCMI.h> // This creates the object SD
+#endif
+
+
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html
@@ -899,7 +905,7 @@ void get_command() {
     }
   }
 
-  #ifdef SDSUPPORT
+  #ifdef SDSUPPORT66
 
     if (!card.sdprinting || serial_count) return;
 
@@ -952,6 +958,56 @@ void get_command() {
     }
 
   #endif // SDSUPPORT
+
+  #ifdef SDHSMCI_SUPPORT
+    static bool stop_buffering = false; //FIX THIS
+    if (!card.sdhsmci_printing || serial_count || card.sdprinting) return;
+
+    if (commands_in_queue == 0) stop_buffering = false;
+
+    //    while (!card.eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
+    while (!card.sdhsmci_eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
+      bool sdhsmci_read_success;
+      sdhsmci_read_success = card.sdhsmci_file.Read(serial_char);
+
+      if (serial_char == '\n' || serial_char == '\r' ||
+          ((serial_char == '#' || serial_char == ':') && !comment_mode) ||
+          serial_count >= (MAX_CMD_SIZE - 1) || !sdhsmci_read_success
+      ) {
+        if (card.sdhsmci_eof()) {
+          SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+          print_job_stop_ms = millis();
+          char time[30];
+          millis_t t = (print_job_stop_ms - print_job_start_ms) / 1000;
+          int hours = t / 60 / 60, minutes = (t / 60) % 60;
+          sprintf_P(time, PSTR("%i " MSG_END_HOUR " %i " MSG_END_MINUTE), hours, minutes);
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLN(time);
+          lcd_setstatus(time, true);
+          card.sdhsmci_printing_finished();
+          //card.checkautostart(true);
+        }
+        if (serial_char == '#') stop_buffering = true;
+
+        if (!serial_count) {
+          comment_mode = false; //for new command
+          return; //if empty line
+        }
+        command_queue[cmd_queue_index_w][serial_count] = 0; //terminate string
+        // if (!comment_mode) {
+        fromsd[cmd_queue_index_w] = true;
+        commands_in_queue += 1;
+        cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
+        // }
+        comment_mode = false; //for new command
+        serial_count = 0; //clear buffer
+      }
+      else {
+        if (serial_char == ';') comment_mode = true;
+        if (!comment_mode) command_queue[cmd_queue_index_w][serial_count++] = serial_char;
+      }
+    }
+  #endif
 }
 
 bool code_has_value() {
@@ -5366,6 +5422,12 @@ void process_next_command() {
 
         case 928: //M928 - Start SD write
           gcode_M928(); break;
+        #ifdef SDHSMCI_SUPPORT
+          case 888: //M888
+            card.sdhsmci_init(); break;
+          case 889: //M889
+            card.sdhsmci_printing = true; break;
+        #endif
 
       #endif //SDSUPPORT
 
@@ -5375,6 +5437,15 @@ void process_next_command() {
 
       case 42: //M42 -Change pin status via gcode
         gcode_M42();
+        break;
+
+      case 43: //M43 - Read pin state
+        if ( code_seen('P') ) {
+          SerialUSB.print(PSTR("digitalRead pin: "));
+          SerialUSB.print( (uint8_t)code_value() );
+          SerialUSB.print(PSTR(" Value: "));
+          SerialUSB.println( digitalRead(code_value() ) );
+        }
         break;
 
       #if defined(ENABLE_AUTO_BED_LEVELING) && defined(Z_PROBE_REPEATABILITY_TEST)
