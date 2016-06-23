@@ -67,7 +67,7 @@
 
 #ifdef SDHSMCI_SUPPORT
   #include <SD_HSMCI.h>
-  #include <Arduino_Due_SD_HSCMI.h> // This creates the object SD
+  #include "Arduino_Due_SD_HSCMI.h" // This creates the object SD
 #endif
 
 
