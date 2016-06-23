@@ -55,7 +55,7 @@ public:
 
 
  #ifdef SDHSMCI_SUPPORT
-  FORCE_INLINE bool isFileOpen() { return sdhsmci_file.inUse); }
+  FORCE_INLINE bool isFileOpen() { return sdhsmci_file.inUse; }
  #else
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
  #endif

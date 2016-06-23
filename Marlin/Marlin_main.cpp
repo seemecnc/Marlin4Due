@@ -961,20 +961,21 @@ void get_command() {
 
   #ifdef SDHSMCI_SUPPORT
     static bool stop_buffering = false; //FIX THIS
+    //if (!card.sdprinting || serial_count) return;
     if (!card.sdhsmci_printing || serial_count || card.sdprinting) return;
 
     if (commands_in_queue == 0) stop_buffering = false;
 
     while (!card.eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
     //while (!card.sdhsmci_eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
-      bool sdhsmci_read_success;
-      sdhsmci_read_success = card.sdhsmci_file.Read(serial_char);
+      int16_t n = card.get();
+      serial_char = (char)n;
 
       if (serial_char == '\n' || serial_char == '\r' ||
           ((serial_char == '#' || serial_char == ':') && !comment_mode) ||
-          serial_count >= (MAX_CMD_SIZE - 1) || !sdhsmci_read_success
+          serial_count >= (MAX_CMD_SIZE - 1) ||  n == -1
       ) {
-        if (card.sdhsmci_eof()) {
+        if (card.eof()) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
           print_job_stop_ms = millis();
           char time[30];
