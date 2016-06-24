@@ -584,6 +584,10 @@ void CardReader::checkautostart(bool force) {
 }
 
 void CardReader::closefile(bool store_location) {
+  #ifdef SDHSMCI_SUPPORT
+    sdhsmci_file.Close();
+    return;
+  #else
   file.sync();
   file.close();
   saving = logging = false;
@@ -592,6 +596,7 @@ void CardReader::closefile(bool store_location) {
     //future: store printer state, filename and position for continuing a stopped print
     // so one can unplug the printer and continue printing the next day.
   }
+  #endif
 }
 
 /**
