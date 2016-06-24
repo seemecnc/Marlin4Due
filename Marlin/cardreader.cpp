@@ -145,15 +145,11 @@ bool CardReader::sdhsmci_eof() {
   return sdhsmci_file.Position() >= filesize;
 }
 
-void sdhsmci_list_dir()
+void sdhsmci_list_dir() //File name list seperated by newlines.
 {
-  //File name list seperated by newlines.
-
   FileInfo file_info;
   if (SD.FindFirst("0:/", file_info))
   {
-      //SerialUSB.println(PSTR("Begin file list"));
-      // iterate through all entries and append each file name
       do
       {
         SerialUSB.print(file_info.fileName);
@@ -161,7 +157,6 @@ void sdhsmci_list_dir()
         SerialUSB.println();
       }
       while (SD.FindNext(file_info));
-      //SerialUSB.println(PSTR("End file list"));
   }
 }
 #endif
@@ -588,14 +583,14 @@ void CardReader::closefile(bool store_location) {
     sdhsmci_file.Close();
     return;
   #else
-  file.sync();
-  file.close();
-  saving = logging = false;
+    file.sync();
+    file.close();
+    saving = logging = false;
 
-  if (store_location) {
-    //future: store printer state, filename and position for continuing a stopped print
-    // so one can unplug the printer and continue printing the next day.
-  }
+    if (store_location) {
+      //future: store printer state, filename and position for continuing a stopped print
+      // so one can unplug the printer and continue printing the next day.
+    }
   #endif
 }
 

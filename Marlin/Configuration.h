@@ -648,8 +648,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
 #define SDHSMCI_SUPPORT
-//    #define SDCARDDETECT     2 //D2  PB25_TIOA0
-//    #define SDSS            87 //D87 PA29 CS
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
 #define ENCODER_PULSES_PER_STEP 2 // Increase if you have a high resolution encoder
@@ -692,6 +690,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 #define REPRAP_DISCOUNT_SMART_CONTROLLER
+  #if !defined(REPRAP_DISCOUNT_SMART_CONTROLLER) && defined(SDHSMCI_SUPPORT)
+      #define SDCARDDETECT     2 //D2  PB25_TIOA0
+      #define SDSS            87 //D87 PA29 CS
+  #endif
 
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel

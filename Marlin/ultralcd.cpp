@@ -1228,13 +1228,13 @@ void lcd_sdcard_menu() {
   }
  #endif
  #ifdef SDHSMCI_SUPPORT
-  //File name list seperated by newlines.
-
   FileInfo file_info;
+  char longFilenameThrowaway[LCD_WIDTH];
+    //warning: dogm_lcd_implementation.h
+    //in function: _drawmenu_sd() 
+    //will intentionally corrupt our long filename at location [LCD_WIDTH - 1] = '\0'
   if (SD.FindFirst("0:/", file_info))
   {
-      //SerialUSB.println(PSTR("Begin file list"));
-      // iterate through all entries and append each file name
       do
       {
         SerialUSB.print(PSTR("Debug LCD Filename: "));
@@ -1242,11 +1242,11 @@ void lcd_sdcard_menu() {
         if(file_info.isDirectory) SerialUSB.print("/");
         SerialUSB.println();
         if( ! file_info.isDirectory) {
-          MENU_ITEM(sdfile, MSG_CARD_MENU, file_info.fileName, file_info.fileName);
+          memcpy(longFilenameThrowaway,file_info.fileName,LCD_WIDTH);
+          MENU_ITEM(sdfile, MSG_CARD_MENU, file_info.fileName, longFilenameThrowaway);
         }
       }
       while (SD.FindNext(file_info));
-      //SerialUSB.println(PSTR("End file list"));
   }
  #endif
   END_MENU();
@@ -1401,6 +1401,8 @@ static void menu_action_sdfile(const char* filename, char* longFilename) {
   char* c;
   sprintf_P(cmd, PSTR("M23 %s"), filename);
   for(c = &cmd[4]; *c; c++) *c = tolower(*c);
+  SerialUSB.print(PSTR("Debug menu_action_sdfile() cmd: "));
+  SerialUSB.println(cmd);
   enqueuecommand(cmd);
   enqueuecommands_P(PSTR("M24"));
   lcd_return_to_status();
