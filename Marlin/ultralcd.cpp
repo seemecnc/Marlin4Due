@@ -1198,6 +1198,7 @@ void lcd_sdcard_menu() {
   uint16_t fileCnt = card.getnrfilenames();
   START_MENU(lcd_main_menu);
   MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+ #ifndef SDHSMCI_SUPPORT
   card.getWorkDirName();
   if (card.filename[0] == '/') {
     #if SDCARDDETECT == -1
@@ -1225,6 +1226,29 @@ void lcd_sdcard_menu() {
       MENU_ITEM_DUMMY();
     }
   }
+ #endif
+ #ifdef SDHSMCI_SUPPORT
+  //File name list seperated by newlines.
+
+  FileInfo file_info;
+  if (SD.FindFirst("0:/", file_info))
+  {
+      //SerialUSB.println(PSTR("Begin file list"));
+      // iterate through all entries and append each file name
+      do
+      {
+        SerialUSB.print(PSTR("Debug LCD Filename: "));
+        SerialUSB.print(file_info.fileName);
+        if(file_info.isDirectory) SerialUSB.print("/");
+        SerialUSB.println();
+        if( ! file_info.isDirectory) {
+          MENU_ITEM(sdfile, MSG_CARD_MENU, file_info.fileName, file_info.fileName);
+        }
+      }
+      while (SD.FindNext(file_info));
+      //SerialUSB.println(PSTR("End file list"));
+  }
+ #endif
   END_MENU();
 }
 #endif

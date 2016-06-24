@@ -905,8 +905,8 @@ void get_command() {
     }
   }
 
-  #ifdef SDSUPPORT66
 
+  #if defined(SDSUPPORT) && !defined(SDHSMCI_SUPPORT)
     if (!card.sdprinting || serial_count) return;
 
     // '#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
@@ -960,9 +960,9 @@ void get_command() {
   #endif // SDSUPPORT
 
   #ifdef SDHSMCI_SUPPORT
-    static bool stop_buffering = false; //FIX THIS
-    //if (!card.sdprinting || serial_count) return;
-    if (!card.sdhsmci_printing || serial_count || card.sdprinting) return;
+    static bool stop_buffering = false;
+    if (!card.sdprinting || serial_count) return;
+    //if (!card.sdhsmci_printing || serial_count || card.sdprinting) return;
 
     if (commands_in_queue == 0) stop_buffering = false;
 
@@ -986,7 +986,7 @@ void get_command() {
           SERIAL_ECHOLN(time);
           lcd_setstatus(time, true);
           card.sdhsmci_printing_finished();
-          //card.checkautostart(true);
+          card.checkautostart(true);
         }
         if (serial_char == '#') stop_buffering = true;
 
@@ -5397,7 +5397,7 @@ void process_next_command() {
           gcode_M21(); break;
         case 22: //M22 - release SD card
           gcode_M22(); break;
-        case 23: //M23 - Select file
+        case 23: // - Select file
           gcode_M23(); break;
         case 24: //M24 - Start SD print
           gcode_M24(); break;
@@ -5423,11 +5423,13 @@ void process_next_command() {
 
         case 928: //M928 - Start SD write
           gcode_M928(); break;
+        case 887: //M887
+          SerialUSB.print("card.cardOK: ");
+          SerialUSB.println(card.cardOK);
+          SerialUSB.print("card.sdprinting: ");
+          SerialUSB.println(card.sdprinting);
+          break;
         #ifdef SDHSMCI_SUPPORT
-          case 887:
-            SerialUSB.print("cardOK: ");
-            SerialUSB.println(card.cardOK);
-            break;
           case 888: //M888
             card.sdhsmci_init(); break;
           case 889: //M889

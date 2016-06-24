@@ -152,7 +152,7 @@ void sdhsmci_list_dir()
   FileInfo file_info;
   if (SD.FindFirst("0:/", file_info))
   {
-      SerialUSB.println(PSTR("Begin file list"));
+      //SerialUSB.println(PSTR("Begin file list"));
       // iterate through all entries and append each file name
       do
       {
@@ -161,11 +161,7 @@ void sdhsmci_list_dir()
         SerialUSB.println();
       }
       while (SD.FindNext(file_info));
-      SerialUSB.println(PSTR("End file list"));
-  }
-  else
-  {
-        SerialUSB.println(PSTR("NONE\n"));
+      //SerialUSB.println(PSTR("End file list"));
   }
 }
 #endif
@@ -341,11 +337,11 @@ void CardReader::sdhsmci_open_file(char* name, bool read) {
 #endif
 
 void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) {
+  if (!cardOK) return;
   #ifdef SDHSMCI_SUPPORT
     sdhsmci_open_file(name,read);
     return;
   #endif
-  if (!cardOK) return;
   if (file.isOpen()) { //replacing current file by new file, or subfile call
     if (!replace_current) {
      if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {

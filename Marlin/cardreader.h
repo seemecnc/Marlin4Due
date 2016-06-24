@@ -61,6 +61,7 @@ public:
  #endif
 
   FORCE_INLINE bool eof() { return sdpos >= filesize; }
+
  #ifdef SDHSMCI_SUPPORT
   FORCE_INLINE int16_t get() {
     char readByte;
@@ -75,6 +76,7 @@ public:
  #else
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
  #endif
+
   FORCE_INLINE void setIndex(long index) { sdpos = index; file.seekSet(index); }
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
