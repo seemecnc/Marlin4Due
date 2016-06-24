@@ -5424,6 +5424,10 @@ void process_next_command() {
         case 928: //M928 - Start SD write
           gcode_M928(); break;
         #ifdef SDHSMCI_SUPPORT
+          case 887:
+            SerialUSB.print("cardOK: ");
+            SerialUSB.println(card.cardOK);
+            break;
           case 888: //M888
             card.sdhsmci_init(); break;
           case 889: //M889

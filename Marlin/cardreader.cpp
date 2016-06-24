@@ -132,7 +132,14 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 }
 
 #ifdef SDHSMCI_SUPPORT
-void CardReader::sdhsmci_init() { SD.Init(); }
+void CardReader::sdhsmci_init() {
+  cardOK = false;
+  SD.Init();
+  if(sd_mmc_check(0) == SD_MMC_OK) {
+    SerialUSB.println("Debug: SDHSMCI cardOK!");
+    cardOK = true;
+  }
+}
 
 bool CardReader::sdhsmci_eof() {
   return sdhsmci_file.Position() >= filesize;
@@ -237,6 +244,10 @@ void CardReader::ls()  {
 #endif // LONG_FILENAME_HOST_SUPPORT
 
 void CardReader::initsd() {
+  #ifdef SDHSMCI_SUPPORT
+    sdhsmci_init();
+    return;
+  #endif
   cardOK = false;
   if (root.isOpen()) root.close();
 
