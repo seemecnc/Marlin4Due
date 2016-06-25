@@ -327,7 +327,10 @@ void CardReader::sdhsmci_open_file(char* name, bool read) {
   SerialUSB.println(sdhsmci_file.Length());
   SerialUSB.print(PSTR("Debug Info: Status: "));
   SerialUSB.println(sdhsmci_file.Status());
+  SerialUSB.print(PSTR("Debug Info: inUse: "));
+  SerialUSB.println(sdhsmci_file.inUse);
   filesize = sdhsmci_file.Length();
+  sdpos = 0;
 }
 #endif
 
@@ -552,6 +555,9 @@ void CardReader::checkautostart(bool force) {
     initsd();
     if (!cardOK) return; // fail
   }
+  #ifdef SDHSMCI_SUPPORT
+    return;
+  #endif
 
   char autoname[10];
   sprintf_P(autoname, PSTR("auto%i.g"), autostart_index);
@@ -670,7 +676,11 @@ void CardReader::printingHasFinished() {
     startFileprint();
   }
   else {
+   #ifdef SDHSMCI_SUPPORT
+    sdhsmci_file.Close();
+   #else
     file.close();
+   #endif
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE) {
       //finishAndDisableSteppers();
