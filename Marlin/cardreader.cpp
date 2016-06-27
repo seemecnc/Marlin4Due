@@ -329,7 +329,13 @@ void CardReader::sdhsmci_open_file(char* name, bool read) {
   SerialUSB.println(sdhsmci_file.Status());
   SerialUSB.print(PSTR("Debug Info: inUse: "));
   SerialUSB.println(sdhsmci_file.inUse);
-  filesize = sdhsmci_file.Length();
+  if(read) filesize = sdhsmci_file.Length();
+  if(!read) {
+    saving = true;
+    SERIAL_PROTOCOLPGM(MSG_SD_WRITE_TO_FILE);
+    SERIAL_PROTOCOLLN(name);
+    lcd_setstatus(name);
+  }
   sdpos = 0;
 }
 #endif
@@ -538,8 +544,12 @@ void CardReader::write_command(char *buf) {
   end[1] = '\r';
   end[2] = '\n';
   end[3] = '\0';
+  #ifdef SDHSMCI_SUPPORT
+    if (!sdhsmci_file.Write(begin)) { // Invert the return valure for error checking, Write() returns false if there is an error
+  #else
   file.write(begin);
   if (file.writeError) {
+  #endif
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_SD_ERR_WRITE_TO_FILE);
   }
@@ -587,17 +597,16 @@ void CardReader::checkautostart(bool force) {
 void CardReader::closefile(bool store_location) {
   #ifdef SDHSMCI_SUPPORT
     sdhsmci_file.Close();
-    return;
   #else
     file.sync();
     file.close();
+  #endif
     saving = logging = false;
 
     if (store_location) {
       //future: store printer state, filename and position for continuing a stopped print
       // so one can unplug the printer and continue printing the next day.
     }
-  #endif
 }
 
 /**

@@ -1237,10 +1237,10 @@ void lcd_sdcard_menu() {
   {
       do
       {
-        SerialUSB.print(PSTR("Debug LCD Filename: "));
-        SerialUSB.print(file_info.fileName);
-        if(file_info.isDirectory) SerialUSB.print("/");
-        SerialUSB.println();
+        //SerialUSB.print(PSTR("Debug LCD Filename: "));
+        //SerialUSB.print(file_info.fileName);
+        //if(file_info.isDirectory) SerialUSB.print("/");
+        //SerialUSB.println();
         if( ! file_info.isDirectory) {
           memcpy(longFilenameThrowaway,file_info.fileName,LCD_WIDTH);
           MENU_ITEM(sdfile, MSG_CARD_MENU, file_info.fileName, longFilenameThrowaway);
