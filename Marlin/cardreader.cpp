@@ -536,7 +536,9 @@ void CardReader::write_command(char *buf) {
   char* npos = 0;
   char* end = buf + strlen(buf) - 1;
 
+  #ifndef SDHSMCI_SUPPORT
   file.writeError = false;
+  #endif
   if ((npos = strchr(buf, 'N')) != NULL) {
     begin = strchr(npos, ' ') + 1;
     end = strchr(npos, '*') - 1;
@@ -546,6 +548,7 @@ void CardReader::write_command(char *buf) {
   end[3] = '\0';
   #ifdef SDHSMCI_SUPPORT
     if (!sdhsmci_file.Write(begin)) { // Invert the return valure for error checking, Write() returns false if there is an error
+    //if(0) {
   #else
   file.write(begin);
   if (file.writeError) {
