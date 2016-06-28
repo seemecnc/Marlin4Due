@@ -548,7 +548,6 @@ void CardReader::write_command(char *buf) {
   end[3] = '\0';
   #ifdef SDHSMCI_SUPPORT
     if (!sdhsmci_file.Write(begin)) { // Invert the return valure for error checking, Write() returns false if there is an error
-    //if(0) {
   #else
   file.write(begin);
   if (file.writeError) {

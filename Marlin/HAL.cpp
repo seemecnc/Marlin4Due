@@ -31,7 +31,10 @@
 #include "HAL.h"
 #include "Configuration.h"
 
+#ifdef EEPROM_SETTINGS
 #include <Wire.h>
+#endif
+
 #include <SPI.h>
 
 // --------------------------------------------------------------------------
@@ -171,7 +174,7 @@ void spiflash_write_byte(long address, uint8_t value)
 // --------------------------------------------------------------------------
 // eeprom
 // --------------------------------------------------------------------------
-
+#ifdef EEPROM_SETTINGS
 static bool eeprom_initialised = false;
 static uint8_t eeprom_device_address = 0x50;
 
@@ -214,6 +217,7 @@ unsigned char eeprom_read_byte(unsigned char *pos) {
 		data = Wire.read();
 	return data;
 }
+#endif
 
 // --------------------------------------------------------------------------
 // Timers
