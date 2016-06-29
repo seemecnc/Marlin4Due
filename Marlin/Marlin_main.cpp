@@ -5428,6 +5428,8 @@ void process_next_command() {
           SerialUSB.println(card.cardOK);
           SerialUSB.print("card.sdprinting: ");
           SerialUSB.println(card.sdprinting);
+          SerialUSB.print("card.current_working_directory: ");
+          SerialUSB.println(card.current_working_directory);
           break;
         #ifdef SDHSMCI_SUPPORT
           case 888: //M888

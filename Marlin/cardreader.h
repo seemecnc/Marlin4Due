@@ -47,6 +47,8 @@ public:
     bool sdhsmci_eof();
     //char sdhsmci_get();
     void sdhsmci_printing_finished();
+    void sdhsmci_updir();
+    bool sdhsmci_is_subdirectory();
   #endif
   void ls();
   void chdir(const char * relpath);
@@ -88,6 +90,7 @@ public:
   #ifdef SDHSMCI_SUPPORT
     bool sdhsmci_printing;
     FileStore sdhsmci_file;
+    char current_working_directory[256];
   #endif
 private:
   SdFile root, *curDir, workDir, workDirParents[MAX_DIR_DEPTH];

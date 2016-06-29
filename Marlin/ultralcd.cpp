@@ -1184,7 +1184,11 @@ static void lcd_control_volumetric_menu() {
 #endif
 
 static void lcd_sd_updir() {
+ #ifdef SDHSMCI_SUPPORT
+  card.sdhsmci_updir();
+ #else
   card.updir();
+ #endif
   currentMenuViewOffset = 0;
 }
 
@@ -1228,12 +1232,15 @@ void lcd_sdcard_menu() {
   }
  #endif
  #ifdef SDHSMCI_SUPPORT
+  if( card.sdhsmci_is_subdirectory() ) {
+    MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
+  }
   FileInfo file_info;
   char longFilenameThrowaway[LCD_WIDTH];
     //warning: dogm_lcd_implementation.h
     //in function: _drawmenu_sd() 
     //will intentionally corrupt our long filename at location [LCD_WIDTH - 1] = '\0'
-  if (SD.FindFirst("0:/", file_info))
+  if (SD.FindFirst(card.current_working_directory, file_info))
   {
       do
       {
@@ -1241,8 +1248,13 @@ void lcd_sdcard_menu() {
         //SerialUSB.print(file_info.fileName);
         //if(file_info.isDirectory) SerialUSB.print("/");
         //SerialUSB.println();
-        if( ! file_info.isDirectory) {
-          memcpy(longFilenameThrowaway,file_info.fileName,LCD_WIDTH);
+        memcpy(longFilenameThrowaway,file_info.fileName,LCD_WIDTH);
+        if(file_info.isDirectory) {
+          //strcat(file_info.fileName,"/");
+          //memcpy( &longFilenameThrowaway[LCD_WIDTH-2], "/",2);
+          MENU_ITEM(sddirectory, MSG_CARD_MENU, file_info.fileName, longFilenameThrowaway);
+        }
+        else {
           MENU_ITEM(sdfile, MSG_CARD_MENU, file_info.fileName, longFilenameThrowaway);
         }
       }

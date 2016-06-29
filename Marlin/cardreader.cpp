@@ -25,6 +25,7 @@ CardReader::CardReader() {
 
   #ifdef SDHSMCI_SUPPORT
     sdhsmci_printing = false;
+    strcpy(current_working_directory,"0:/");
   #endif
 
   autostart_stilltocheck = true; //the SD start is delayed, because otherwise the serial cannot answer fast enough to make contact with the host software.
@@ -148,7 +149,7 @@ bool CardReader::sdhsmci_eof() {
 void sdhsmci_list_dir() //File name list seperated by newlines.
 {
   FileInfo file_info;
-  if (SD.FindFirst("0:/", file_info))
+  if (SD.FindFirst(card.current_working_directory, file_info))
   {
       do
       {
@@ -321,8 +322,48 @@ void CardReader::getAbsFilename(char *t) {
 }
 
 #ifdef SDHSMCI_SUPPORT
+void up_directory(char *path) {
+  #define ROOT_MIN_LEN 3 //will preserve these chars
+  for(size_t i = strlen(path)-2; i >= ROOT_MIN_LEN; i--) { //-2 assumes path has ending slash
+    if( path[i] == '/') break;
+    path[i] = 0;
+  }
+}
+
+bool CardReader::sdhsmci_is_subdirectory() {
+  return strlen(current_working_directory) > ROOT_MIN_LEN;
+}
+
+void CardReader::sdhsmci_updir() {
+  up_directory(current_working_directory);
+}
+
 void CardReader::sdhsmci_open_file(char* name, bool read) {
-  sdhsmci_file.Open("0:/",name,!read); // 0 for READ, 1 for WRITE
+  /*
+  if( strcmp(name,"..") ) {
+    up_directory(current_working_directory);
+    return;
+  }
+  */
+  
+  //Check if selected file is a directory.
+  if(name[strlen(name)-1] == '/') {
+    uint8_t current_dir_len = strlen(current_working_directory);
+    //Check path is not too long.
+    if( (strlen(name) + strlen(current_working_directory)) > 256 ) {
+      SerialUSB.println(PSTR("Directory change failed: Over MAXDIR_LENTH."));
+      return;
+    }
+    
+    //char *current_dir = &current_working_directory[ strlen(current_working_directory) ];
+    //Append directory to current working directory.
+    strcat(current_working_directory, name);
+    SerialUSB.print(PSTR("Current Working Directory: "));
+    SerialUSB.println(current_working_directory);
+    return;
+  }
+
+  sdhsmci_file.Open(current_working_directory,name,!read); // 0 for READ, 1 for WRITE
   SerialUSB.print(PSTR("Debug Info: filesize: "));
   SerialUSB.println(sdhsmci_file.Length());
   SerialUSB.print(PSTR("Debug Info: Status: "));
@@ -633,6 +674,32 @@ uint16_t CardReader::getnrfilenames() {
 }
 
 void CardReader::chdir(const char * relpath) {
+  #ifdef SDHSMCI_SUPPORT
+  //if(name[strlen(name)-1] == '/') {
+    char *name = (char *)relpath;
+    uint8_t current_dir_len = strlen(current_working_directory);
+    //Check path is not too long.
+    if( (strlen(name) + strlen(current_working_directory)) > 256 ) {
+      SerialUSB.println(PSTR("Directory change failed: Over MAXDIR_LENTH."));
+      return;
+    }
+    
+    //char *current_dir = &current_working_directory[ strlen(current_working_directory) ];
+    //Append directory to current working directory.
+    strcat(current_working_directory, name);
+    current_dir_len = strlen(current_working_directory);
+    if(current_working_directory[current_dir_len] != '/') strcat(current_working_directory,"/");
+    SerialUSB.print(PSTR("Current Working Directory: ")); SerialUSB.println(current_working_directory);
+    return;
+  
+  /*
+    strcat(path,"/");
+    SerialUSB.print(PSTR("Debug menu_action_chdir(): "));
+    SerialUSB.println(path);
+
+    openFile( path, 1); */
+    return;
+  #endif
   SdFile newfile;
   SdFile *parent = &root;
 
