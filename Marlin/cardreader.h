@@ -72,6 +72,9 @@ public:
       return readByte;
     }
     else {
+      //cardOK = false;
+      sdprinting = false;
+      //closefile();
       return -1;
     }
   }
