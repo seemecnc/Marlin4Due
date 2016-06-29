@@ -145,6 +145,8 @@
     #define encrot2 3
     #define encrot3 1
   #endif  //NEWPANEL
+#else
+  #define SDSS            87 //only defined to prevent compile errors
 #endif //ULTRA_LCD
 
 //#ifndef SDSUPPORT
