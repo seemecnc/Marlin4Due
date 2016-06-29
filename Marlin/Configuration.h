@@ -690,10 +690,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 #define REPRAP_DISCOUNT_SMART_CONTROLLER
-  #if !defined(REPRAP_DISCOUNT_SMART_CONTROLLER) && defined(SDHSMCI_SUPPORT)
-      #define SDCARDDETECT     2 //D2  PB25_TIOA0
-      #define SDSS            87 //D87 PA29 CS
-  #endif
 
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel

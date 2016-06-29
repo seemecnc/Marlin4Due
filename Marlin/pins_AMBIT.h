@@ -86,8 +86,6 @@
 
 #define SDPOWER            -1
 
-//#define SDCARDDETECT       85 // D85 PB11 SDCD
-//#define SDSS               55 // D55 PA24 MCDA3
 
 //#define SDSS             -1 // D77 PA28 CS0 SPIFLASH
 
