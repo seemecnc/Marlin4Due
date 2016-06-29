@@ -5423,15 +5423,17 @@ void process_next_command() {
 
         case 928: //M928 - Start SD write
           gcode_M928(); break;
+      #ifdef SDHSMCI_SUPPORT
         case 887: //M887
-          SerialUSB.print("card.cardOK: ");
+          SerialUSB.print(PSTR("card.cardOK: "));
           SerialUSB.println(card.cardOK);
-          SerialUSB.print("card.sdprinting: ");
+          SerialUSB.print(PSTR("card.sdprinting: "));
           SerialUSB.println(card.sdprinting);
-          SerialUSB.print("card.current_working_directory: ");
+          SerialUSB.print(PSTR("card.current_working_directory: "));
           SerialUSB.println(card.current_working_directory);
+          SerialUSB.print(PSTR("Read Pin SD_MMC_0_CD_GPIO: "));
+          SerialUSB.println(digitalRead(SD_MMC_0_CD_GPIO));
           break;
-        #ifdef SDHSMCI_SUPPORT
           case 888: //M888
             card.sdhsmci_init(); break;
           case 889: //M889

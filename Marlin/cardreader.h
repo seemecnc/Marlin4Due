@@ -119,6 +119,9 @@ extern CardReader card;
 
 #define IS_SD_PRINTING (card.sdprinting)
 
+#ifdef SDHSMCI_SUPPORT //SDHSMCI_SUPPORT card detection
+#define IS_SD_INSERTED (READ(SD_MMC_0_CD_GPIO) == SD_MMC_0_CD_DETECT_VALUE)
+#else
 #if (SDCARDDETECT > -1)
   #ifdef SDCARDDETECTINVERTED
     #define IS_SD_INSERTED (READ(SDCARDDETECT) != 0)
@@ -129,9 +132,9 @@ extern CardReader card;
   //No card detect line? Assume the card is inserted.
   #define IS_SD_INSERTED true
 #endif
+#endif //SDHSMCI_SUPPORT card detection
 
 #else
-
 #define IS_SD_PRINTING (false)
 
 #endif //SDSUPPORT
