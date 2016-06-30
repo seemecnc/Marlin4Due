@@ -391,7 +391,7 @@ static void lcd_sdcard_pause() { card.pauseSDPrint(); }
 static void lcd_sdcard_resume() { card.startFileprint(); }
 
 static void lcd_sdcard_stop() {
-  quickStop();
+  //quickStop();
   card.sdprinting = false;
   card.closefile();
   autotempShutdown();
