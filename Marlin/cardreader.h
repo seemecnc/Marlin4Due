@@ -46,7 +46,6 @@ public:
     void sdhsmci_open_file(char* name, bool read);
     bool sdhsmci_eof();
     //char sdhsmci_get();
-    void sdhsmci_printing_finished();
     void sdhsmci_updir();
     bool sdhsmci_is_subdirectory();
   #endif
