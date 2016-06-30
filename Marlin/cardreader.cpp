@@ -758,11 +758,7 @@ void CardReader::printingHasFinished() {
     startFileprint();
   }
   else {
-   #ifdef SDHSMCI_SUPPORT
-    sdhsmci_file.Close();
-   #else
-    file.close();
-   #endif
+    closefile();
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE) {
       //finishAndDisableSteppers();
