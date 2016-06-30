@@ -90,7 +90,6 @@ public:
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   int autostart_index;
   #ifdef SDHSMCI_SUPPORT
-    bool sdhsmci_printing;
     FileStore sdhsmci_file;
     char sdhsmci_filename[MAX_CMD_SIZE];
     char current_working_directory[256];

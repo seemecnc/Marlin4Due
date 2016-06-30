@@ -5400,8 +5400,6 @@ void process_next_command() {
           break;
           case 888: //M888
             card.sdhsmci_init(); break;
-          case 889: //M889
-            card.sdhsmci_printing = true; break;
         #endif
 
       #endif //SDSUPPORT

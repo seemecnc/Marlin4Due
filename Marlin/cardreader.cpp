@@ -24,7 +24,6 @@ CardReader::CardReader() {
   memset(workDirParents, 0, sizeof(workDirParents));
 
   #ifdef SDHSMCI_SUPPORT
-    sdhsmci_printing = false;
     strcpy(current_working_directory,"0:/");
   #endif
 
