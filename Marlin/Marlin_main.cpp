@@ -5381,8 +5381,22 @@ void process_next_command() {
           SerialUSB.println(card.sdprinting);
           SerialUSB.print(PSTR("card.current_working_directory: "));
           SerialUSB.println(card.current_working_directory);
+          SerialUSB.print(PSTR("Debug Info: card.sdhsmci_file.inUse: "));
+          SerialUSB.println(card.sdhsmci_file.inUse);
+          SerialUSB.print(PSTR("Debug Info: card.sdhsmci_file.Length(): "));
+          SerialUSB.println(card.sdhsmci_file.Length());
+          SerialUSB.print(PSTR("Debug Info: card.sdhsmci_file.Status(): "));
+          SerialUSB.println(card.sdhsmci_file.Status());
+          SerialUSB.print(PSTR("Debug Info: card.sdhsmci_file.Position(): "));
+          SerialUSB.println(card.sdhsmci_file.Position());
           SerialUSB.print(PSTR("Read Pin SD_MMC_0_CD_GPIO: "));
           SerialUSB.println(digitalRead(SD_MMC_0_CD_GPIO));
+          {
+          bool tmpCardOk = card.cardOK;
+          card.cardOK = true;
+          gcode_M27();
+          card.cardOK = tmpCardOk;
+          }
           break;
           case 888: //M888
             card.sdhsmci_init(); break;
