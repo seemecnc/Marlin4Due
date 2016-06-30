@@ -746,21 +746,6 @@ void CardReader::updir() {
   }
 }
 
-#ifdef SDHSMCI_SUPPORT
-void CardReader::sdhsmci_printing_finished() {
-  st_synchronize();
-  sdhsmci_file.Close();
-  sdprinting = false;
-  sdhsmci_printing = false;
-  autotempShutdown();
-  if (SD_FINISHED_STEPPERRELEASE) {
-    //finishAndDisableSteppers();
-    enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-  }
-}
-#endif
-
-
 void CardReader::printingHasFinished() {
   st_synchronize();
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
