@@ -503,6 +503,9 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
 }
 
 void CardReader::removeFile(char* name) {
+  #ifdef SDHSMCI_SUPPORT
+    return;
+  #endif
   if (!cardOK) return;
 
   file.close();
