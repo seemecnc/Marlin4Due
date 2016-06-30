@@ -363,6 +363,7 @@ void CardReader::sdhsmci_open_file(char* name, bool read) {
     return;
   }
 
+  if(isFileOpen()) closefile();
   sdhsmci_file.Open(current_working_directory,name,!read); // 0 for READ, 1 for WRITE
   SerialUSB.print(PSTR("Debug Info: filesize: "));
   SerialUSB.println(sdhsmci_file.Length());
