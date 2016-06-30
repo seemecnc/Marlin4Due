@@ -93,6 +93,7 @@ public:
   #ifdef SDHSMCI_SUPPORT
     bool sdhsmci_printing;
     FileStore sdhsmci_file;
+    char sdhsmci_filename[MAX_CMD_SIZE];
     char current_working_directory[256];
   #endif
 private:

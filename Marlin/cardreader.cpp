@@ -139,6 +139,18 @@ void CardReader::sdhsmci_init() {
   if(sd_mmc_check(0) == SD_MMC_OK) {
     SerialUSB.println("Debug: SDHSMCI cardOK!");
     cardOK = true;
+
+    //file is open after init? Then re-open the previously open file.
+    if(isFileOpen()) {
+      uint32_t tmp_sdpos = sdpos;
+      //sdhsmci_file.Close();
+      openFile(&sdhsmci_filename[0],!saving); //openFile 1 for READ
+      //sdhsmci_file.Open(current_working_directory,sdhsmci_filename,saving); // 0 for READ, 1 for WRITE
+      sdhsmci_file.Seek(tmp_sdpos);
+      sdpos = tmp_sdpos;
+      SerialUSB.print("Debug Info: resuming sdpos: ");
+      SerialUSB.println(tmp_sdpos);
+    }
   }
 }
 
@@ -385,6 +397,7 @@ void CardReader::sdhsmci_open_file(char* name, bool read) {
 void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) {
   if (!cardOK) return;
   #ifdef SDHSMCI_SUPPORT
+    strcpy(sdhsmci_filename,name); //store filename for recovery from a re-init of sd.
     sdhsmci_open_file(name,read);
     return;
   #endif
