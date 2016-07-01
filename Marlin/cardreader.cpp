@@ -142,9 +142,7 @@ void CardReader::sdhsmci_init() {
     //file is open after init? Then re-open the previously open file.
     if(isFileOpen()) {
       uint32_t tmp_sdpos = sdpos;
-      //sdhsmci_file.Close();
       openFile(&sdhsmci_filename[0],!saving); //openFile 1 for READ
-      //sdhsmci_file.Open(current_working_directory,sdhsmci_filename,saving); // 0 for READ, 1 for WRITE
       sdhsmci_file.Seek(tmp_sdpos);
       sdpos = tmp_sdpos;
       SerialUSB.print("Debug Info: resuming sdpos: ");
