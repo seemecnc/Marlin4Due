@@ -5347,7 +5347,7 @@ void process_next_command() {
           gcode_M21(); break;
         case 22: //M22 - release SD card
           gcode_M22(); break;
-        case 23: // - Select file
+        case 23: //M23 - Select file
           gcode_M23(); break;
         case 24: //M24 - Start SD print
           gcode_M24(); break;
