@@ -958,7 +958,6 @@ void get_command() {
     }
 
   #endif // SDSUPPORT
-
 }
 
 bool code_has_value() {
