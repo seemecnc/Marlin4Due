@@ -65,12 +65,6 @@
   #include <SPI.h>
 #endif
 
-#ifdef SDHSMCI_SUPPORT
-  #include <SD_HSMCI.h>
-  #include "Arduino_Due_SD_HSCMI.h" // This creates the object SD
-#endif
-
-
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html
