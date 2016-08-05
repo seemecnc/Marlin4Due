@@ -900,7 +900,7 @@ void get_command() {
   }
 
 
-  #if defined(SDSUPPORT) || defined(SDHSMCI_SUPPORT)
+  #if defined(SDSUPPORT) //|| defined(SDHSMCI_SUPPORT)
     if (!card.sdprinting || serial_count) return;
 
     // '#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
