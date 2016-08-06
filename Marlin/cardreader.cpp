@@ -244,6 +244,9 @@ void CardReader::ls()  {
 
 #endif // LONG_FILENAME_HOST_SUPPORT
 
+#ifdef VIKI2
+  void viki2begin();
+#endif
 void CardReader::initsd() {
   #ifdef SDHSMCI_SUPPORT
     sdhsmci_init();
@@ -287,6 +290,9 @@ void CardReader::initsd() {
     SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
   }
   */
+  #ifdef VIKI2
+    viki2begin();
+  #endif
 }
 
 void CardReader::setroot() {

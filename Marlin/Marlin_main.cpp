@@ -65,6 +65,10 @@
   #include <SPI.h>
 #endif
 
+#ifdef SDSUPPORT
+  #include <SPI.h>
+#endif
+
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html
@@ -618,6 +622,10 @@ void servo_init() {
  *    • status LEDs
  */
 void setup() {
+  pinMode(54,OUTPUT);
+  digitalWrite(54,HIGH);
+  pinMode(77,OUTPUT);
+  digitalWrite(77,HIGH);
   setup_killpin();
   setup_filrunoutpin();
   setup_powerhold();
@@ -722,7 +730,7 @@ void loop() {
   if (commands_in_queue < BUFSIZE - 1) get_command();
 
   #ifdef SDSUPPORT
-    card.checkautostart(false);
+    //card.checkautostart(false);
   #endif
 
   if (commands_in_queue) {
@@ -2929,8 +2937,20 @@ inline void gcode_M17() {
   /**
    * M21: Init SD Card
    */
+  #ifdef VIK2DBG
+    void lcd_upddate_dbg();
+    void viki2begin();
+  #endif
   inline void gcode_M21() {
     card.initsd();
+  #ifdef VIK2DBG
+    viki2begin();
+    SerialUSB.print("READ LCD_PINS_D5: "); SerialUSB.println(digitalRead(LCD_PINS_D5));
+    SerialUSB.print("READ SPIFLASH_CS: "); SerialUSB.println(digitalRead(77));
+    SerialUSB.print("READ SDSS: "); SerialUSB.println(digitalRead(SDSS));
+    SPI.setClockDivider(34);
+    lcd_upddate_dbg();
+  #endif
   }
 
   /**

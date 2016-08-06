@@ -124,7 +124,10 @@
   U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
 #elif defined(VIKI2) || defined(miniVIKI)
   // Mini Viki and Viki 2.0 LCD, ST7565 controller as well
+  #define DOGLCD_CS LCD_PINS_D5 //86 //PB21_CS2
+  #define DOGLCD_A0 LCD_PINS_D4 //94 //PB1
   U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
+  #define LCD_SCREEN_ROT_180
 #elif defined(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
@@ -142,6 +145,11 @@
 #ifndef LCD_PIXEL_HEIGHT
   #define LCD_PIXEL_HEIGHT 64
 #endif
+
+void viki2begin()
+{
+  u8g.begin();
+}
 
 #include "utf_mapper.h"
 
