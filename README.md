@@ -4,6 +4,17 @@
 ### Modified for AMBIT (Experimental)
 This firmware is an experimental fork of Marlin4Due with the necessary modifications to run UltiMachine's new AMBIT 3d controller. 
 
+
+WORKS WITH ARDUINO 1.6.0 ONLY!!!
+Use the fork ambit-addons160 and copy ArduinoAddons/Arduino_1.6.0/hardware/ultimachine TO
+c:/program files (might be x86)/Arduinoxxx/hardware    
+That gives the ambit board info to arduino
+
+THEN use the fork Ambit_SPIFLASH-merged for the firmware
+
+
+
+
 ### Instructions
 Download Arduino 1.6.0 and then install the ArduinoAddons for Arduino_1.6.0.
 
