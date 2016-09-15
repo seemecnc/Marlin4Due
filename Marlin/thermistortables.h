@@ -174,6 +174,7 @@ const short temptable_5[][2] PROGMEM = {
 // ATC Semitec 104GT-2 (Used in ParCan)
 // Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
+// testing something
    {1*OVERSAMPLENR, 713},
    {17*OVERSAMPLENR, 300}, //top rating 300C
    {20*OVERSAMPLENR, 290},
@@ -207,6 +208,41 @@ const short temptable_5[][2] PROGMEM = {
    {1000*OVERSAMPLENR, 10},
    {1010*OVERSAMPLENR, 0}
 };
+/*
+   {1*OVERSAMPLENR, 713},
+   {17*OVERSAMPLENR, 300}, //top rating 300C
+   {20*OVERSAMPLENR, 290},
+   {23*OVERSAMPLENR, 280},
+   {27*OVERSAMPLENR, 270},
+   {31*OVERSAMPLENR, 260},
+   {37*OVERSAMPLENR, 250},
+   {43*OVERSAMPLENR, 240},
+   {51*OVERSAMPLENR, 230},
+   {61*OVERSAMPLENR, 220},
+   {73*OVERSAMPLENR, 210},
+   {87*OVERSAMPLENR, 200},
+   {106*OVERSAMPLENR, 190},
+   {128*OVERSAMPLENR, 180},
+   {155*OVERSAMPLENR, 170},
+   {189*OVERSAMPLENR, 160},
+   {230*OVERSAMPLENR, 150},
+   {278*OVERSAMPLENR, 140},
+   {336*OVERSAMPLENR, 130},
+   {402*OVERSAMPLENR, 120},
+   {476*OVERSAMPLENR, 110},
+   {554*OVERSAMPLENR, 100},
+   {635*OVERSAMPLENR, 90},
+   {713*OVERSAMPLENR, 80},
+   {784*OVERSAMPLENR, 70},
+   {846*OVERSAMPLENR, 60},
+   {897*OVERSAMPLENR, 50},
+   {937*OVERSAMPLENR, 40},
+   {966*OVERSAMPLENR, 30},
+   {986*OVERSAMPLENR, 20},
+   {1000*OVERSAMPLENR, 10},
+   {1010*OVERSAMPLENR, 0}
+};
+*/
 #endif
 
 #if (THERMISTORHEATER_0 == 6) || (THERMISTORHEATER_1 == 6) || (THERMISTORHEATER_2 == 6) || (THERMISTORHEATER_3 == 6) || (THERMISTORBED == 6) // 100k Epcos thermistor
