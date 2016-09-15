@@ -33,19 +33,19 @@
 
 #define X_MS1_PIN          39 //PC7 MOD0E1 //As listed in schematic
 #define X_MS2_PIN          38 //PC6 MOD1E1
-#define X_MS3_PIN          37 //PC5 MOD2E1
+#define X_MS3_PIN          -1 //37 PC5 MOD2E1
 #define Y_MS1_PIN          50 //PC13 MODE0E2
 #define Y_MS2_PIN          51 //PC12 MODE1E2
-#define Y_MS3_PIN          92 //PC11 MODE2E2 -AddOns
+#define Y_MS3_PIN          -1 //92 PC11 MODE2E2 -AddOns
 #define Z_MS1_PIN          44 //PC19 MOD0E Z
 #define Z_MS2_PIN          45 //PC18 MOD1E Z
-#define Z_MS3_PIN          46 //PC17 MOD2E Z
+#define Z_MS3_PIN          -1 //46 PC17 MOD2E Z
 #define E0_MS1_PIN        105 //PB22 MOD0E3 -AddOns
 #define E0_MS2_PIN        106 //PC27 MOD1E3 -AddOns
-#define E0_MS3_PIN        104 //PC20 MOD2E3 -AddOns
+#define E0_MS3_PIN        -1 //104 PC20 MOD2E3 -AddOns
 #define E1_MS1_PIN         25 //PD0 MOD0E4
 #define E1_MS2_PIN         18 //PA11 MOD1E4
-#define E1_MS3_PIN         19 //PA10 MOD2E4
+#define E1_MS3_PIN         -1 //19 PA10 MOD2E4
 
 #define Y2_STEP_PIN        -1
 #define Y2_DIR_PIN         -1
