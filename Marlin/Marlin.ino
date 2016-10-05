@@ -1,7 +1,7 @@
 /**
 
 
-spiflash-merged branch for Rostock MAX v3
+from spiflash-merged branch for Rostock MAX v3
 
 
  * Marlin Firmware
