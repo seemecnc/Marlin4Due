@@ -117,8 +117,9 @@ Here are some standard links for getting your machine calibrated:
 #define DELTA_CARRIAGE_OFFSET 27.1 // mm
 
 // Horizontal distance bridged by diagonal push rods when effector is centered.
-#define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
-
+//#define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
+//hardcoding delta radius for now!
+#define DELTA_RADIUS 143.25
 // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
 #define DELTA_PRINTABLE_RADIUS 140
 
@@ -608,7 +609,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #ifdef MANUAL_HOME_POSITIONS
   #define MANUAL_X_HOME_POS 0
   #define MANUAL_Y_HOME_POS 0
-  #define MANUAL_Z_HOME_POS 407.74 // For delta: Distance between nozzle and print surface after homing.
+  #define MANUAL_Z_HOME_POS 408.99 // For delta: Distance between nozzle and print surface after homing.
 #endif
 
 // @section movement
