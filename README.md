@@ -1,6 +1,8 @@
 # Marlin4Due Firmware for AMBIT
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
+# visis seemecnc.com and the menu SUPPORT tab for archived RAMBo controlled SeeMeCNC 3D printers
+
 ### Modified for AMBIT (Experimental)
 This firmware is an experimental fork of Marlin4Due with the necessary modifications to run UltiMachine's new AMBIT 3d controller. 
 
